@@ -103,29 +103,6 @@
         end
     end
 
-    -- Function to check if any TextBox or TextInput objects are focused
-    local function IsTyping()
-        local player = game.Players.LocalPlayer
-        if not player then
-            return false -- No player, cannot determine if typing
-        end
-
-        local playerGui = player:FindFirstChild("PlayerGui")
-        if not playerGui then
-            return false -- No PlayerGui, cannot determine if typing
-        end
-
-        for _, obj in ipairs(playerGui:GetDescendants()) do
-            if obj:IsA("TextBox") or obj:IsA("TextInput") then
-                if obj:IsFocused() then
-                    warn("Typing, cannot perform actions.")
-                    return true -- Found a focused TextBox or TextInput
-                end
-            end
-        end
-        return false -- No focused TextBox or TextInput found
-    end
-
     -- Function to toggle script enable/disable
     local function ToggleScript()
         Settings.Toggles.ScriptEnabled = not Settings.Toggles.ScriptEnabled
@@ -156,21 +133,34 @@
         return
     end
 
+    -- Function to check if the chat box is focused
+    local function isChatFocused()
+        local Player = game.Players.LocalPlayer
+        local Chat = Player.PlayerGui:FindFirstChild("Chat")
+        if Chat then
+            local ChatBox = Chat.Frame.ChatBarParentFrame.Frame.BoxFrame.Frame:FindFirstChild("ChatBar")
+            if ChatBox and ChatBox:IsA("TextBox") then
+                return ChatBox:IsFocused()
+            end
+        end
+        return false
+    end
+
     -- Listen for key presses to toggle Settings and enable/disable script
     UIS.InputBegan:Connect(function(input)
-        if IsTyping() then
-            return
-        end
-        if input.KeyCode == Settings.Keybinds.KrakenToggle and Settings.Toggles.ScriptEnabled then
-            Settings.Toggles.KrakenRespawn = not Settings.Toggles.KrakenRespawn
-            ConsoleNotification("Kraken Auto Respawn is now:", Settings.Toggles.KrakenRespawn)
-            ActivityNotification("Kraken Auto Respawn", "Status: " .. tostring(Settings.Toggles.KrakenRespawn))
-        elseif input.KeyCode == Settings.Keybinds.BlackMarketToggle and Settings.Toggles.ScriptEnabled then
-            Settings.Toggles.BuyBlackMarket = not Settings.Toggles.BuyBlackMarket
-            ConsoleNotification("Black Market Auto Buy is now: ", Settings.Toggles.BuyBlackMarket)
-            ActivityNotification("Black Market Auto Buy", "Status: " .. tostring(Settings.Toggles.BuyBlackMarket))
-        elseif input.KeyCode == Settings.Keybinds.ToggleScript then
-            ToggleScript()
+        local chatFocused = isChatFocused()
+        if not chatFocused then
+            if input.KeyCode == Settings.Keybinds.KrakenToggle and Settings.Toggles.ScriptEnabled then
+                Settings.Toggles.KrakenRespawn = not Settings.Toggles.KrakenRespawn
+                ConsoleNotification("Kraken Auto Respawn is now:", Settings.Toggles.KrakenRespawn)
+                ActivityNotification("Kraken Auto Respawn", "Status: " .. tostring(Settings.Toggles.KrakenRespawn))
+            elseif input.KeyCode == Settings.Keybinds.BlackMarketToggle and Settings.Toggles.ScriptEnabled then
+                Settings.Toggles.BuyBlackMarket = not Settings.Toggles.BuyBlackMarket
+                ConsoleNotification("Black Market Auto Buy is now: ", Settings.Toggles.BuyBlackMarket)
+                ActivityNotification("Black Market Auto Buy", "Status: " .. tostring(Settings.Toggles.BuyBlackMarket))
+            elseif input.KeyCode == Settings.Keybinds.ToggleScript then
+                ToggleScript()
+            end
         end
     end)
 
