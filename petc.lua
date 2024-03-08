@@ -139,33 +139,27 @@
     end
 
     -- Listen for key presses to toggle Settings and enable/disable script
-    local keybinds = {
-        Settings.Keybinds.KrakenToggle, 
-        Settings.Keybinds.BlackMarketToggle, 
-        Settings.Keybinds.ToggleScript
-    }
-    UIS.InputBegan:Connect(function(input)
-        -- Check if the input matches any of the keybinds
-        for _, keybind in ipairs(keybinds) do
-            if input.KeyCode == keybind then
-                -- Check if the user is typing
-                if isTyping() then
-                    warn("Chat box is focused and typing, ignoring keybinds.")
-                    return -- Exit the loop and function early if the user is typing
-                end
-
-                -- Process key press if the user is not typing
-                if keybind == Settings.Keybinds.KrakenToggle and Settings.Toggles.ScriptEnabled then
-                    Settings.Toggles.KrakenRespawn = not Settings.Toggles.KrakenRespawn
-                    ConsoleNotification("Kraken Auto Respawn is now", Settings.Toggles.KrakenRespawn)
-                    ActivityNotification("Kraken Auto Respawn", "Status: " .. tostring(Settings.Toggles.KrakenRespawn))
-                elseif keybind == Settings.Keybinds.BlackMarketToggle and Settings.Toggles.ScriptEnabled then
-                    Settings.Toggles.BuyBlackMarket = not Settings.Toggles.BuyBlackMarket
-                    ConsoleNotification("Black Market Auto Buy is now", Settings.Toggles.BuyBlackMarket)
-                    ActivityNotification("Black Market Auto Buy",
-                        "Status: " .. tostring(Settings.Toggles.BuyBlackMarket))
-                elseif keybind == Settings.Keybinds.ToggleScript then
-                    ToggleScript()
+    local keybinds = {Settings.Keybinds.KrakenToggle, Settings.Keybinds.BlackMarketToggle, Settings.Keybinds.ToggleScript}
+    -- Listen for key presses to toggle Settings and enable/disable script
+    UIS.InputBegan:Connect(function(input, isProcessed)
+        if not isProcessed then
+            -- Check if the input matches any of the keybinds
+            for _, keybind in ipairs(keybinds) do
+                if input.KeyCode == keybind then
+                    -- Process key press if the user is not typing
+                    if keybind == Settings.Keybinds.KrakenToggle and Settings.Toggles.ScriptEnabled then
+                        Settings.Toggles.KrakenRespawn = not Settings.Toggles.KrakenRespawn
+                        ConsoleNotification("Kraken Auto Respawn is now", Settings.Toggles.KrakenRespawn)
+                        ActivityNotification("Kraken Auto Respawn",
+                            "Status: " .. tostring(Settings.Toggles.KrakenRespawn))
+                    elseif keybind == Settings.Keybinds.BlackMarketToggle and Settings.Toggles.ScriptEnabled then
+                        Settings.Toggles.BuyBlackMarket = not Settings.Toggles.BuyBlackMarket
+                        ConsoleNotification("Black Market Auto Buy is now", Settings.Toggles.BuyBlackMarket)
+                        ActivityNotification("Black Market Auto Buy",
+                            "Status: " .. tostring(Settings.Toggles.BuyBlackMarket))
+                    elseif keybind == Settings.Keybinds.ToggleScript then
+                        ToggleScript()
+                    end
                 end
             end
         end
