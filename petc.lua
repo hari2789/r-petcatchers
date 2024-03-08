@@ -13,17 +13,19 @@
 -- Settings and default configurations
 local Settings = getgenv().Settings or {
     Versions = {
-        ScriptVersion = "1.7", -- Script version
-        GameVersion = "1.01a" -- Game version
+        sVersion = "1.7", -- Script version
+        gVersion = "1.01a" -- Game version
     },
     Toggles = { 
+        ScriptEnabled = true, -- Toggle for enabling/disabling the script
         KrakenRespawn = false, -- Toggle for Kraken respawn
         BuyBlackMarket = false, -- Toggle for Black Market auto buy
-        ScriptEnabled = true -- Toggle for enabling/disabling the script
+        BuyGemTrader = false, -- Toggle for Gem Trader auto buy
     },
     Keybinds = {
         KrakenToggle = Enum.KeyCode.J, -- Keybind for toggling Kraken respawn
         BlackMarketToggle = Enum.KeyCode.K, -- Keybind for toggling Black Market auto buy
+        GemTraderToggle = Enum.KeyCode.L, -- Keybind for toggling Gem Trader auto buy
         ToggleScript = Enum.KeyCode.U -- Keybind for enabling/disabling the script
     },
     Timers = {
@@ -77,13 +79,13 @@ local function RespawnKraken()
 end
 
 -- Function to buy an item from the Black Market
-local function BuyItem(itemIndex)
+local function BuyItem(shop, itemIndex)
     local success, RemoteEvent = pcall(function()
         return ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network"):WaitForChild(
             "Remote"):WaitForChild("Event")
     end)
     if success then
-        local result = RemoteEvent:FireServer("BuyShopItem", "the-blackmarket", itemIndex)
+        local result = RemoteEvent:FireServer("BuyShopItem", shop, itemIndex)
     else
         warn("Failed to find RemoteEvent for buying items from Black Market.")
     end
@@ -94,7 +96,22 @@ local function BuyBlackMarket()
     while true do
         if Settings.Toggles.BuyBlackMarket and Settings.Toggles.ScriptEnabled then
             for i = 1, 3 do
-                BuyItem(i)
+                BuyItem("the-blackmarket", i)
+                wait(Settings.Timers.BuyDelay)
+            end
+            wait(Settings.Timers.BuyCooldown)
+        else
+            wait(Settings.Timers.CheckCooldown)
+        end
+    end
+end
+
+-- Function to automatically buy items from the Black Market
+local function BuyGemTrader()
+    while true do
+        if Settings.Toggles.BuyGemTrader and Settings.Toggles.ScriptEnabled then
+            for i = 1, 3 do
+                BuyItem("gem-shop", i)
                 wait(Settings.Timers.BuyDelay)
             end
             wait(Settings.Timers.BuyCooldown)
@@ -116,8 +133,8 @@ end
 
 -- Notify script loading and initial settings
 print("av / hari")
-print("Loaded script version " .. Settings.Versions.ScriptVersion)
-print("Works on game version " .. Settings.Versions.GameVersion)
+print("Loaded script version " .. Settings.Versions.sVersion)
+print("Works on game version " .. Settings.Versions.gVersion)
 ActivityNotification("Status", "Script Has Been Loaded")
 ActivityNotification("Kraken Auto Respawn", "Default: " .. tostring(Settings.Toggles.KrakenRespawn))
 ActivityNotification("Black Market Auto Buy", "Default: " .. tostring(Settings.Toggles.BuyBlackMarket))
@@ -133,6 +150,10 @@ UIS.InputBegan:Connect(function(input)
         Settings.Toggles.BuyBlackMarket = not Settings.Toggles.BuyBlackMarket
         ConsoleNotification("Black Market Auto Buy is now: ", Settings.Toggles.BuyBlackMarket)
         ActivityNotification("Black Market Auto Buy", "Status: " .. tostring(Settings.Toggles.BuyBlackMarket))
+    elseif input.KeyCode == Settings.Keybinds.GemTraderToggle and Settings.Toggles.ScriptEnabled then
+        Settings.Toggles.BuyGemTrader = not Settings.Toggles.BuyGemTrader
+        ConsoleNotification("Gem Trader Auto Buy is now: ", Settings.Toggles.BuyGemTrader)
+        ActivityNotification("Gem Trader Auto Buy", "Status: " .. tostring(Settings.Toggles.BuyGemTrader))
     elseif input.KeyCode == Settings.Keybinds.ToggleScript then
         ToggleScript()
     end
