@@ -16,12 +16,14 @@ local Settings = getgenv().Settings or {
       BuyDelay = 0.1,       -- Delay between buying each item
       BuyCooldown = 1,      -- Cooldown period after buying all items
       CheckCooldown = 1     -- Cooldown for checking if the actions should be performed
+  },
+  Versions = {
+    ScriptVersion = "1.6",       -- Script version
+    GameVersion = "1.01a"      -- Game version
   }
 }
 
 -- Services
-local version = "1.6"
-local gversion = "1.01a"
 local UIS = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -62,13 +64,6 @@ local function BuyItem(itemIndex)
     end)
     if success then
         local result = RemoteEvent:FireServer("BuyShopItem", "the-blackmarket", itemIndex)
-        local purchaseSuccessful = result ~= nil -- Set flag based on the result of the FireServer call
-        print(result)
-        if purchaseSuccessful then
-            print('check bought')
-            print("Bought Item " .. itemIndex)
-            ActivityNotification("Black Market", "Bought Item: " .. itemIndex)
-        end
     else
         warn("Failed to find RemoteEvent for buying items from Black Market.")
     end
@@ -90,8 +85,8 @@ local function BuyBlackMarket()
 end
 
 -- Notify script loading and initial settings
-print("Loaded script version " .. version)
-print("Works on game version " .. gversion)
+print("Loaded script version " .. Settings.Versions.ScriptVersion)
+print("Works on game version " .. Settings.Versions.GameVersion)
 ActivityNotification("Status", "Script Has Been Loaded")
 ActivityNotification("Kraken Auto Respawn", "Default: " .. tostring(Settings.KrakenRespawn))
 ActivityNotification("Black Market Auto Buy", "Default: " .. tostring(Settings.BuyBlackMarket))
