@@ -1,6 +1,6 @@
--- V1.04
+-- V1.06
 -- Function to send notifications
-local function SendNotification(title, text)
+local function KrakenRespawnNotification(title, text)
   game:GetService("StarterGui"):SetCore("SendNotification", {
       Title = tostring(title),
       Text = tostring(text),
@@ -10,35 +10,36 @@ end
 
 -- Script settings
 getgenv().Settings = {
-  Enabled = false,
+  KrakenRespawn = false,
   Keybinds = {
-      Toggle = Enum.KeyCode.R
+      KrakenToggle = Enum.KeyCode.R
   }
 }
 
 local UIS = game:GetService("UserInputService")
+local RS = game:GetService("ReplicatedStorage")
 
 -- Listen for key presses
 UIS.InputBegan:Connect(function(input)
   -- Check if the pressed key is the toggle key
-  if input.KeyCode == Settings.Keybinds.Toggle then
+  if input.KeyCode == Settings.Keybinds.KrakenToggle then
       -- Toggle the script state
-      Settings.Enabled = not Settings.Enabled
+      Settings.KrakenRespawn = not Settings.KrakenRespawn
       -- Notify the user about the script state change
-      if Settings.Enabled then
-          SendNotification("Auto Respawn", "Enabled")
+      if Settings.KrakenRespawn then
+        KrakenRespawnNotification("Kraken Auto Respawn", "Enabled")
       else
-          SendNotification("Auto Respawn", "Disabled")
+        KrakenRespawnNotification("Kraken Auto Respawn", "Disabled")
       end
   end
 end)
 
 -- Continuous loop to perform action if script is enabled
 while true do
-  if Settings.Enabled then
+  if Settings.KrakenRespawn then
       -- Fire the server event to respawn the boss
-      game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network"):WaitForChild("Remote"):WaitForChild("Event"):FireServer("RespawnBoss", "the-kraken")
-      task.wait(5) -- Wait for 5 seconds before next respawn
+      RS:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network"):WaitForChild("Remote"):WaitForChild("Event"):FireServer("RespawnBoss", "the-kraken")
+      task.wait(4) -- Wait for 4 seconds before next respawn
   else
       task.wait(1) -- If script is disabled, wait for 1 second before checking again
   end
