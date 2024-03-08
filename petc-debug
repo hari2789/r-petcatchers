@@ -11,7 +11,7 @@
 ]]
 
 -- Settings and default configurations
-local AvAvSettings = getgenv().AvSettings or {
+local AvSettings = getgenv().AvSettings or {
     Vers = {
         ScriptVersion = "1.7a", -- Script version
         StableGameVersion = "1.01a" -- Game version
@@ -162,4 +162,3 @@ end)
 -- Start the functions as coroutines
 coroutine.wrap(BuyBlackMarket)()
 coroutine.wrap(RespawnKraken)()
-
