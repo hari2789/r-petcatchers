@@ -3,7 +3,7 @@ local function SendNotification(title, text)
     game:GetService("StarterGui"):SetCore("SendNotification", {
         Title = tostring(title),
         Text = tostring(text),
-        Duration = 3 -- Adjust the duration as needed
+        Duration = 2 -- Adjust the duration as needed
     })
 end
 
