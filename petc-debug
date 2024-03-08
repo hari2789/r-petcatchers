@@ -11,7 +11,7 @@
 ]]
 
 -- Settings and default configurations
-local AvSettings = getgenv().AvSettings or {
+local AvSettings = {
     Vers = {
         ScriptVersion = "1.7a", -- Script version
         StableGameVersion = "1.01a" -- Game version
@@ -36,6 +36,9 @@ local AvSettings = getgenv().AvSettings or {
         NotificationDuration = 1 -- Duration of the notification
     },
 }
+
+-- If getgenv().AvSettings doesn't exist, set it to AvSettings
+getgenv().AvSettings = getgenv().AvSettings or AvSettings
 
 -- Services
 local UIS = game:GetService("UserInputService")
