@@ -35,62 +35,16 @@ local function ActivityNotification(title, text)
   })
 end
 
--- Function to respawn the Kraken
-local function RespawnKraken()
-  while true do
-      if Settings.KrakenRespawn then
-          local success, RemoteEvent = pcall(function()
-              return ReplicatedStorage:WaitForChild("Shared")
-                  :WaitForChild("Framework")
-                  :WaitForChild("Network")
-                  :WaitForChild("Remote")
-                  :WaitForChild("Event")
-          end)
-          if success then
-              RemoteEvent:FireServer("RespawnBoss", "the-kraken")
-              print("Respawned Kraken")
-              task.wait(Settings.Timers.RespawnCooldown)
-          else
-              warn("Failed to find RemoteEvent for Kraken respawn.")
-          end
-      else
-          task.wait(Settings.Timers.CheckCooldown)
-          break  -- Exit the loop when KrakenRespawn is set to false
-      end
-  end
-end
-
 -- Function to buy an item from the Black Market
 local function BuyItem(itemIndex)
-    local RemoteEvent
-    while not RemoteEvent do
-        RemoteEvent = ReplicatedStorage:FindFirstChild("Shared")
-            and ReplicatedStorage.Shared:FindFirstChild("Framework")
-            and ReplicatedStorage.Shared.Framework:FindFirstChild("Network")
-            and ReplicatedStorage.Shared.Framework.Network:FindFirstChild("Remote")
-            and ReplicatedStorage.Shared.Framework.Network.Remote:FindFirstChild("Event")
-        task.wait(1) -- Wait for 1 second before retrying
-    end
-
-    RemoteEvent:FireServer("BuyShopItem", "the-blackmarket", itemIndex)
-    print("Bought Item " .. itemIndex)
-    ActivityNotification("Black Market", "Bought Item: " .. itemIndex)
-end
-
-
--- Function to automatically buy items from the Black Market
-local function BuyBlackMarket()
-  while true do 
-      if Settings.BuyBlackMarket then
-          for i = 1, 3 do
-              BuyItem(i)
-              task.wait(Settings.Timers.BuyDelay)
-          end
-          task.wait(Settings.Timers.BuyCooldown)
-      else
-          task.wait(Settings.Timers.CheckCooldown)
-          break  -- Exit the loop when BuyBlackMarket is set to false
-      end
+  local success, RemoteEvent = pcall(function()
+      return ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network"):WaitForChild("Remote"):WaitForChild("Event")
+  end)
+  if success then
+      RemoteEvent:FireServer("BuyShopItem", "the-blackmarket", itemIndex)
+      print("Bought Item " .. itemIndex)
+  else
+      warn("Failed to find RemoteEvent for buying items from Black Market.")
   end
 end
 
@@ -113,6 +67,15 @@ UIS.InputBegan:Connect(function(input)
   end
 end)
 
--- Start the functions for Kraken respawning and Black Market auto-buying
-RespawnKraken()
-BuyBlackMarket()
+-- Loop to repeatedly buy items from the Black Market
+while true do
+    if Settings.BuyBlackMarket then
+        for i = 1, 3 do
+            BuyItem(i)
+            wait(Settings.Timers.BuyDelay)
+        end
+        wait(Settings.Timers.BuyCooldown)
+    else
+        wait(Settings.Timers.CheckCooldown)
+    end
+end
