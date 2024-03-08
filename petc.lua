@@ -33,7 +33,7 @@ local function ActivityNotification(title, text)
       Title = tostring(title),
       Text = tostring(text),
       Duration = 1
-  })
+  })  
 end
 
 -- Function to buy an item from the Black Market
@@ -47,8 +47,6 @@ local function BuyItem(itemIndex)
       if purchaseSuccessful then
           print("Bought Item " .. itemIndex)
           ActivityNotification("Black Market", "Bought Item: " .. itemIndex)
-      else
-          warn("Failed to buy Item " .. itemIndex .. " from the Black Market.")
       end
   else
       warn("Failed to find RemoteEvent for buying items from Black Market.")
