@@ -105,10 +105,15 @@
 
     -- Function to check if any TextBox or TextInput objects are focused
     local function IsTyping()
-        return game.Players.LocalPlayer.PlayerGui:FindFirstChildOfClass("TextBox") or 
-        game.Players.LocalPlayer.PlayerGui:FindFirstChildOfClass("TextInput")
+        for _, obj in ipairs(game.Players.LocalPlayer.PlayerGui:GetDescendants()) do
+            if obj:IsA("TextBox") or obj:IsA("TextInput") then
+                if obj:IsFocused() then
+                    return true
+                end
+            end
+        end
+        return false
     end
-    
 
     -- Function to toggle script enable/disable
     local function ToggleScript()
