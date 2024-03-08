@@ -88,6 +88,7 @@ local function BuyBlackMarket()
 end
 
 -- Notify script loading and initial settings
+print("av / hari")
 print("Loaded script version " .. Settings.Versions.ScriptVersion)
 print("Works on game version " .. Settings.Versions.GameVersion)
 ActivityNotification("Status", "Script Has Been Loaded")
