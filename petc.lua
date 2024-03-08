@@ -2,8 +2,8 @@
 Script version 1.5
 Works on game version 1.01a
 
-Toggle Kraken Respawn is R 
-Toggle Black Market Auto Buy is Y
+Toggle Kraken Respawn is J
+Toggle Black Market Auto Buy is K
 --]]
 
 -- Settings and default configurations
@@ -11,8 +11,8 @@ local Settings = getgenv().Settings or {
   KrakenRespawn = false,  -- Toggle for Kraken respawn
   BuyBlackMarket = false, -- Toggle for Black Market auto buy
   Keybinds = {
-      KrakenToggle = Enum.KeyCode.R,       -- Keybind for toggling Kraken respawn
-      BlackMarketToggle = Enum.KeyCode.Y   -- Keybind for toggling Black Market auto buy
+      KrakenToggle = Enum.KeyCode.J,       -- Keybind for toggling Kraken respawn
+      BlackMarketToggle = Enum.KeyCode.K   -- Keybind for toggling Black Market auto buy
   },
   Timers = {
       RespawnCooldown = 4,  -- Wait time between Kraken respawns
