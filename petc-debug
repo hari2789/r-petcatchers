@@ -135,7 +135,7 @@
     warn("Works on game Version " .. tostring(Settings.Versions.StableGameVersion))
     ConsoleNotification("Kraken Auto Respawn", "Default: " .. tostring(Settings.Toggles.KrakenRespawn))
     ConsoleNotification("Black Market Auto Buy", "Default: " .. tostring(Settings.Toggles.BuyBlackMarket))
-    ConsoleNotification("Script Enabled", "Script functionality is enabled.")
+    ActivityNotification("Script Enabled", "Script functionality is enabled.")
 
     -- Check if the Mouse object is available
     local mouse = game:GetService("Players").LocalPlayer:GetMouse()
