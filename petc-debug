@@ -12,10 +12,6 @@
 
 -- Settings and default configurations
 getgenv().Settings = {
-    Versions = {
-        ScriptVersion = "1.7a", -- Script Version
-        StableGameVersion = "1.01a" -- Game Version
-    },
     Toggles = { 
         ScriptEnabled = true, -- Toggle for enabling/disabling the script
         KrakenRespawn = false, -- Toggle for Kraken respawn
@@ -35,7 +31,12 @@ getgenv().Settings = {
         CheckCooldown = 1, -- Cooldown for checking if the actions should be performed
         NotificationDuration = 1 -- Duration of the notification
     },
+    Versions = {
+        ScriptVersion = "1.7a", -- Script Version
+        StableGameVersion = "1.01a" -- Game Version
+    }
 }
+
 
 -- Services
 local UIS = game:GetService("UserInputService")
@@ -150,10 +151,10 @@ UIS.InputBegan:Connect(function(input)
         Settings.Toggles.BuyBlackMarket = not Settings.Toggles.BuyBlackMarket
         ConsoleNotification("Black Market Auto Buy is now: ", Settings.Toggles.BuyBlackMarket)
         ActivityNotification("Black Market Auto Buy", "Status: " .. tostring(Settings.Toggles.BuyBlackMarket))
-    elseif input.KeyCode == Settings.Keybinds.GemTraderToggle and Settings.Toggles.ScriptEnabled then
-        Settings.Toggles.BuyGemTrader = not Settings.Toggles.BuyGemTrader
-        ConsoleNotification("Gem Trader Auto Buy is now: ", Settings.Toggles.BuyGemTrader)
-        ActivityNotification("Gem Trader Auto Buy", "Status: " .. tostring(Settings.Toggles.BuyGemTrader))
+    -- elseif input.KeyCode == Settings.Keybinds.GemTraderToggle and Settings.Toggles.ScriptEnabled then
+    --     Settings.Toggles.BuyGemTrader = not Settings.Toggles.BuyGemTrader
+    --     ConsoleNotification("Gem Trader Auto Buy is now: ", Settings.Toggles.BuyGemTrader)
+    --     ActivityNotification("Gem Trader Auto Buy", "Status: " .. tostring(Settings.Toggles.BuyGemTrader))
     elseif input.KeyCode == Settings.Keybinds.ToggleScript then
         ToggleScript()
     end
