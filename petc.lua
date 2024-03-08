@@ -23,6 +23,7 @@ local Settings = getgenv().Settings or {
 }
 
 -- Services
+local version = "version 1.5"
 local UIS = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -49,7 +50,7 @@ local function BuyItem(itemIndex)
 end
 
 -- Notify script loading and initial settings
-print("Loaded")
+print("Loaded script " .. version)
 ActivityNotification("Status", "Script Has Been Loaded")
 ActivityNotification("Kraken Auto Respawn", "Default: " .. tostring(Settings.KrakenRespawn))
 ActivityNotification("Black Market Auto Buy", "Default: " .. tostring(Settings.BuyBlackMarket))
