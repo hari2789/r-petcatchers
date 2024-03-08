@@ -1,3 +1,15 @@
+--[[
+
+    Made by Av / Hari
+    Version: v1.8
+    Game Version: v1.1.2
+
+    Press J to toggle Kraken respawn
+    Press K to toggle Black Market auto buy
+    Press U to toggle the script on/off
+
+]]
+
 local function InjectedScript()
     -- Settings and default configurations
     local Settings = {
@@ -21,8 +33,8 @@ local function InjectedScript()
             NotificationDuration = 1 -- Duration of the notification
         },
         Versions = {
-            ScriptVersion = "v1.7a", -- Script Version
-            StableGameVersion = "v1.01a" -- Game Version
+            ScriptVersion = "v1.8", -- Script Version
+            StableGameVersion = "v1.1.2" -- Game Version
         }
     }
 
@@ -110,12 +122,26 @@ local function InjectedScript()
         end
     end
 
+    -- Function to check if any TextBox or TextInput objects are focused
+    local function IsTyping()
+        for _, obj in ipairs(game.Players.LocalPlayer.PlayerGui:GetDescendants()) do
+            if obj:IsA("TextBox") or obj:IsA("TextInput") then
+                if obj:IsFocused() then
+                    return true
+                end
+            end
+        end
+        return false
+    end
+
     -- Function to toggle script enable/disable
     local function ToggleScript()
         Settings.Toggles.ScriptEnabled = not Settings.Toggles.ScriptEnabled
         if Settings.Toggles.ScriptEnabled then
+            ConsoleNotification("Script Enabled", "Enabled")
             ActivityNotification("Script Enabled", "Press U to toggle the script off")
         else
+            ConsoleNotification("Script Disabled", "Disabled")
             ActivityNotification("Script Disabled", "Press U to toggle the script on")
         end
     end
@@ -130,7 +156,11 @@ local function InjectedScript()
     ActivityNotification("Script Enabled", "Script functionality is enabled.")
 
     -- Listen for key presses to toggle Settings and enable/disable script
-    UIS.InputBegan:Connect(function(input)
+    local Mouse = LocalPlayer:GetMouse()
+    Mouse.KeyDown:Connect(function(input)
+        if IsTyping() then
+            return
+        end
         if input.KeyCode == Settings.Keybinds.KrakenToggle and Settings.Toggles.ScriptEnabled then
             Settings.Toggles.KrakenRespawn = not Settings.Toggles.KrakenRespawn
             ConsoleNotification("Kraken Auto Respawn is now:", Settings.Toggles.KrakenRespawn)
