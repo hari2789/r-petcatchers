@@ -1,7 +1,4 @@
 --[[
-Script version 1.5
-Works on game version 1.01a
-
 Toggle Kraken Respawn is J
 Toggle Black Market Auto Buy is K
 --]]
@@ -23,7 +20,8 @@ local Settings = getgenv().Settings or {
 }
 
 -- Services
-local version = "version 1.5"
+local version = "1.6"
+local gversion = "1.01a"
 local UIS = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -92,7 +90,8 @@ local function BuyBlackMarket()
 end
 
 -- Notify script loading and initial settings
-print("Loaded script " .. version)
+print("Loaded script version " .. version)
+print("Works on game version " .. gversion)
 ActivityNotification("Status", "Script Has Been Loaded")
 ActivityNotification("Kraken Auto Respawn", "Default: " .. tostring(Settings.KrakenRespawn))
 ActivityNotification("Black Market Auto Buy", "Default: " .. tostring(Settings.BuyBlackMarket))
