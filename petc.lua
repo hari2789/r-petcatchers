@@ -42,11 +42,9 @@ local function BuyItem(itemIndex)
       return ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network"):WaitForChild("Remote"):WaitForChild("Event")
   end)
   if success then
-      local purchaseSuccessful = false -- Flag to track if the purchase was successful
-      RemoteEvent:FireServer("BuyShopItem", "the-blackmarket", itemIndex)
-      purchaseSuccessful = true -- Set flag to true after invoking FireServer
-      local result = purchaseSuccessfuL
-      if result then
+      local result = RemoteEvent:FireServer("BuyShopItem", "the-blackmarket", itemIndex)
+      local purchaseSuccessful = result ~= nil -- Set flag based on the result of the FireServer call
+      if purchaseSuccessful then
           print("Bought Item " .. itemIndex)
           ActivityNotification("Black Market", "Bought Item: " .. itemIndex)
       else
