@@ -1,7 +1,9 @@
 --[[
+
 Toggle Kraken Respawn is J
 Toggle Black Market Auto Buy is K
---]] -- Settings and default configurations
+
+--]]
 
 -- Settings and default configurations
 local Settings = getgenv().Settings or {
@@ -41,8 +43,7 @@ local function RespawnKraken()
     while true do
         if Settings.KrakenRespawn then
             local success, RemoteEvent = pcall(function()
-                return ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network")
-                    :WaitForChild("Remote"):WaitForChild("Event")
+                return ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network"):WaitForChild("Remote"):WaitForChild("Event")
             end)
             if success then
                 RemoteEvent:FireServer("RespawnBoss", "the-kraken")
@@ -61,8 +62,7 @@ end
 -- Function to buy an item from the Black Market
 local function BuyItem(itemIndex)
     local success, RemoteEvent = pcall(function()
-        return ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network"):WaitForChild(
-            "Remote"):WaitForChild("Event")
+        return ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network"):WaitForChild("Remote"):WaitForChild("Event")
     end)
     if success then
         RemoteEvent:FireServer("BuyShopItem", "the-blackmarket", itemIndex)
@@ -82,6 +82,7 @@ local function BuyBlackMarket()
             task.wait(Settings.Timers.BuyCooldown)
         else
             task.wait(Settings.Timers.CheckCooldown)
+            break -- Exit the loop when BuyBlackMarket is set to false
         end
     end
 end
