@@ -42,8 +42,13 @@ local function BuyItem(itemIndex)
       return ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network"):WaitForChild("Remote"):WaitForChild("Event")
   end)
   if success then
-      RemoteEvent:FireServer("BuyShopItem", "the-blackmarket", itemIndex)
-      print("Bought Item " .. itemIndex)
+      local result = RemoteEvent:FireServer("BuyShopItem", "the-blackmarket", itemIndex)
+      if result then
+          print("Bought Item " .. itemIndex)
+          ActivityNotification("Black Market", "Bought Item: " .. itemIndex)
+      else
+          warn("Failed to buy Item " .. itemIndex .. " from the Black Market.")
+      end
   else
       warn("Failed to find RemoteEvent for buying items from Black Market.")
   end
