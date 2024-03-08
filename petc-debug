@@ -12,7 +12,7 @@
 
 -- Settings and default configurations
 local AvAvSettings = getgenv().AvSettings or {
-    Versions = {
+    Vers = {
         ScriptVersion = "1.7a", -- Script version
         StableGameVersion = "1.01a" -- Game version
     },
@@ -134,7 +134,7 @@ end
 -- Notify script loading and initial AvSettings
 print("av / hari")
 print("Loaded script version " .. tostring(AvSettings.ScriptVersion))
-print("Works on game version " .. tostring(AvSettings.Versions.StableGameVersion))
+print("Works on game version " .. tostring(AvSettings.Vers.StableGameVersion))
 ActivityNotification("Status", "Script Has Been Loaded")
 ActivityNotification("Kraken Auto Respawn", "Default: " .. tostring(AvSettings.Toggles.KrakenRespawn))
 ActivityNotification("Black Market Auto Buy", "Default: " .. tostring(AvSettings.Toggles.BuyBlackMarket))
@@ -162,3 +162,4 @@ end)
 -- Start the functions as coroutines
 coroutine.wrap(BuyBlackMarket)()
 coroutine.wrap(RespawnKraken)()
+
