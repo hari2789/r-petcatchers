@@ -1,6 +1,6 @@
 --[[
 
-    Made by Av / Hari
+    Made by Av & Hari
     Version: v1.8
     Game Version: v1.1.2
 
@@ -15,12 +15,10 @@
             ScriptEnabled = true, -- Toggle for enabling/disabling the script
             KrakenRespawn = false, -- Toggle for Kraken respawn
             BuyBlackMarket = false, -- Toggle for Black Market auto buy
-            BuyGemTrader = false -- Toggle for Gem Trader auto buy
         },
         Keybinds = {
             KrakenToggle = Enum.KeyCode.J, -- Keybind for toggling Kraken respawn
             BlackMarketToggle = Enum.KeyCode.K, -- Keybind for toggling Black Market auto buy
-            GemTraderToggle = Enum.KeyCode.L, -- Keybind for toggling Gem Trader auto buy
             ToggleScript = Enum.KeyCode.U -- Keybind for enabling/disabling the script
         },
         Timers = {
@@ -107,15 +105,10 @@
 
     -- Function to check if any TextBox or TextInput objects are focused
     local function IsTyping()
-        for _, obj in ipairs(game.Players.LocalPlayer.PlayerGui:GetDescendants()) do
-            if obj:IsA("TextBox") or obj:IsA("TextInput") then
-                if obj:IsFocused() then
-                    return true
-                end
-            end
-        end
-        return false
+        return game.Players.LocalPlayer.PlayerGui:FindFirstChildOfClass("TextBox") or 
+        game.Players.LocalPlayer.PlayerGui:FindFirstChildOfClass("TextInput")
     end
+    
 
     -- Function to toggle script enable/disable
     local function ToggleScript()
@@ -132,7 +125,7 @@
     end
 
     -- Notify script loading and initial Settings
-    warn("Av / Hari")
+    warn("Made by Av & Hari")
     warn("Loaded script Version " .. tostring(Settings.Versions.ScriptVersion))
     warn("Works on game Version " .. tostring(Settings.Versions.StableGameVersion))
     ConsoleNotification("Kraken Auto Respawn", "Default: " .. tostring(Settings.Toggles.KrakenRespawn))
