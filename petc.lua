@@ -64,9 +64,8 @@ local function BuyItem(itemIndex)
     end)
     if success then
         local result = RemoteEvent:FireServer("BuyShopItem", "the-blackmarket", itemIndex)
-        print('before ps')
         local purchaseSuccessful = result ~= nil -- Set flag based on the result of the FireServer call
-        print('after ps')
+        print(result)
         if purchaseSuccessful then
             print('check bought')
             print("Bought Item " .. itemIndex)
