@@ -1,32 +1,47 @@
+--[[
+
+    Made by Av / Hari
+    Versions: 1.7
+    Game Version: 1.01a
+
+    Press J to toggle Kraken respawn
+    Press K to toggle Black Market auto buy
+    Press U to toggle the script on/off
+
+]]
+
+-- Settings and default configurations
 getgenv().Settings = {
     Versions = {
-        ScriptVersion = "1.7a", 
-        StableGameVersion = "1.01a" 
+        ScriptVersion = "1.7a", -- Script Version
+        StableGameVersion = "1.01a" -- Game Version
     },
     Toggles = { 
-        ScriptEnabled = true, 
-        KrakenRespawn = false, 
-        BuyBlackMarket = false, 
-        BuyGemTrader = false, 
+        ScriptEnabled = true, -- Toggle for enabling/disabling the script
+        KrakenRespawn = false, -- Toggle for Kraken respawn
+        BuyBlackMarket = false, -- Toggle for Black Market auto buy
+        BuyGemTrader = false, -- Toggle for Gem Trader auto buy
     },
     Keybinds = {
-        KrakenToggle = Enum.KeyCode.J, 
-        BlackMarketToggle = Enum.KeyCode.K, 
-        GemTraderToggle = Enum.KeyCode.L, 
-        ToggleScript = Enum.KeyCode.U 
+        KrakenToggle = Enum.KeyCode.J, -- Keybind for toggling Kraken respawn
+        BlackMarketToggle = Enum.KeyCode.K, -- Keybind for toggling Black Market auto buy
+        GemTraderToggle = Enum.KeyCode.L, -- Keybind for toggling Gem Trader auto buy
+        ToggleScript = Enum.KeyCode.U -- Keybind for enabling/disabling the script
     },
     Timers = {
-        RespawnCooldown = 4, 
-        BuyDelay = 0.1, 
-        BuyCooldown = 1, 
-        CheckCooldown = 1, 
-        NotificationDuration = 1 
+        RespawnCooldown = 4, -- Wait time between Kraken respawns
+        BuyDelay = 0.1, -- Delay between buying each item
+        BuyCooldown = 1, -- Cooldown period after buying all items
+        CheckCooldown = 1, -- Cooldown for checking if the actions should be performed
+        NotificationDuration = 1 -- Duration of the notification
     },
 }
 
+-- Services
 local UIS = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+-- Function to display notifications
 local function ActivityNotification(title, text)
     if Settings.Toggles.ScriptEnabled then
         game:GetService("StarterGui"):SetCore("SendNotification", {
@@ -37,12 +52,14 @@ local function ActivityNotification(title, text)
     end
 end
 
+-- Function to print notifications to the console
 local function ConsoleNotification(title, text)
     if Settings.Toggles.ScriptEnabled then
         print(tostring(title) .. " : " .. tostring(text))
     end
 end
 
+-- Function to respawn the Kraken
 local function RespawnKraken()
     while true do
         if Settings.Toggles.KrakenRespawn and Settings.Toggles.ScriptEnabled then
@@ -61,6 +78,7 @@ local function RespawnKraken()
     end
 end
 
+-- Function to buy an item from the Black Market
 local function BuyItem(shop, itemIndex)
     local success, RemoteEvent = pcall(function()
         return ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network"):WaitForChild(
@@ -73,6 +91,7 @@ local function BuyItem(shop, itemIndex)
     end
 end
 
+-- Function to automatically buy items from the Black Market
 local function BuyBlackMarket()
     while true do
         if Settings.Toggles.BuyBlackMarket and Settings.Toggles.ScriptEnabled then
@@ -87,6 +106,7 @@ local function BuyBlackMarket()
     end
 end
 
+-- Function to automatically buy items from the Black Market
 local function BuyGemTrader()
     while true do
         if Settings.Toggles.BuyGemTrader and Settings.Toggles.ScriptEnabled then
@@ -101,6 +121,7 @@ local function BuyGemTrader()
     end
 end
 
+-- Function to toggle script enable/disable
 local function ToggleScript()
     Settings.Toggles.ScriptEnabled = not Settings.Toggles.ScriptEnabled
     if Settings.Toggles.ScriptEnabled then
@@ -110,6 +131,7 @@ local function ToggleScript()
     end
 end
 
+-- Notify script loading and initial Settings
 print("Av / Hari")
 print("Loaded script Version " .. tostring(Settings.Versions.ScriptVersion))
 print("Works on game Version " .. tostring(Settings.Versions.StableGameVersion))
@@ -118,6 +140,7 @@ ActivityNotification("Kraken Auto Respawn", "Default: " .. tostring(Settings.Tog
 ActivityNotification("Black Market Auto Buy", "Default: " .. tostring(Settings.Toggles.BuyBlackMarket))
 ActivityNotification("Script Enabled", "Script functionality is enabled.")
 
+-- Listen for key presses to toggle Settings and enable/disable script
 UIS.InputBegan:Connect(function(input)
     if input.KeyCode == Settings.Keybinds.KrakenToggle and Settings.Toggles.ScriptEnabled then
         Settings.Toggles.KrakenRespawn = not Settings.Toggles.KrakenRespawn
@@ -136,5 +159,6 @@ UIS.InputBegan:Connect(function(input)
     end
 end)
 
+-- Start the functions as coroutines
 coroutine.wrap(BuyBlackMarket)()
 coroutine.wrap(RespawnKraken)()
