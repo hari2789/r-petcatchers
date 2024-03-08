@@ -14,7 +14,7 @@
         Toggles = {
             ScriptEnabled = true, -- Toggle for enabling/disabling the script
             KrakenRespawn = false, -- Toggle for Kraken respawn
-            BuyBlackMarket = false, -- Toggle for Black Market auto buy
+            BuyBlackMarket = false -- Toggle for Black Market auto buy
         },
         Keybinds = {
             KrakenToggle = Enum.KeyCode.J, -- Keybind for toggling Kraken respawn
@@ -105,14 +105,25 @@
 
     -- Function to check if any TextBox or TextInput objects are focused
     local function IsTyping()
-        for _, obj in ipairs(game.Players.LocalPlayer.PlayerGui:GetDescendants()) do
+        local player = game.Players.LocalPlayer
+        if not player then
+            return false -- No player, cannot determine if typing
+        end
+
+        local playerGui = player:FindFirstChild("PlayerGui")
+        if not playerGui then
+            return false -- No PlayerGui, cannot determine if typing
+        end
+
+        for _, obj in ipairs(playerGui:GetDescendants()) do
             if obj:IsA("TextBox") or obj:IsA("TextInput") then
                 if obj:IsFocused() then
-                    return true
+                    warn("Typing, cannot perform actions.")
+                    return true -- Found a focused TextBox or TextInput
                 end
             end
         end
-        return false
+        return false -- No focused TextBox or TextInput found
     end
 
     -- Function to toggle script enable/disable
