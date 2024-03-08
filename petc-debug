@@ -156,8 +156,7 @@ local function InjectedScript()
     ActivityNotification("Script Enabled", "Script functionality is enabled.")
 
     -- Listen for key presses to toggle Settings and enable/disable script
-    local Mouse = LocalPlayer:GetMouse()
-    Mouse.KeyDown:Connect(function(input)
+    UIS.InputBegan:Connect(function(input)
         if IsTyping() then
             return
         end
