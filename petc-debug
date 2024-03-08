@@ -121,12 +121,12 @@
     local function ToggleScript()
         Settings.Toggles.ScriptEnabled = not Settings.Toggles.ScriptEnabled
         if Settings.Toggles.ScriptEnabled then
-            ConsoleNotification("Script Enabled", "Script is enabled")
-            ActivityNotification("Script Enabled", "Press U to toggle the script off")
+            ConsoleNotification("Enabled", "Script is enabled. Press U to toggle the script off")
+            ActivityNotification("Enabled", "Script is enabled. Press U to toggle the script off")
         else
             Settings.Toggles.ScriptEnabled = not Settings.Toggles.ScriptEnabled
-            ConsoleNotification("Script Disabled", "Script is disabled")
-            ActivityNotification("Script Disabled", "Press U to toggle the script on")
+            ConsoleNotification("Disabled", "Script is disabled. Press U to toggle the script on")
+            ActivityNotification("Disabled", "Script is disabled. Press U to toggle the script on")
             Settings.Toggles.ScriptEnabled = not Settings.Toggles.ScriptEnabled
         end
     end
