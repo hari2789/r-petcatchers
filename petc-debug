@@ -121,11 +121,13 @@
     local function ToggleScript()
         Settings.Toggles.ScriptEnabled = not Settings.Toggles.ScriptEnabled
         if Settings.Toggles.ScriptEnabled then
-            ConsoleNotification("Script Enabled", "Enabled")
+            ConsoleNotification("Script Enabled", "Script is enabled")
             ActivityNotification("Script Enabled", "Press U to toggle the script off")
         else
-            ConsoleNotification("Script Disabled", "Disabled")
+            Settings.Toggles.ScriptEnabled = not Settings.Toggles.ScriptEnabled
+            ConsoleNotification("Script Disabled", "Script is disabled")
             ActivityNotification("Script Disabled", "Press U to toggle the script on")
+            Settings.Toggles.ScriptEnabled = not Settings.Toggles.ScriptEnabled
         end
     end
 
@@ -135,7 +137,8 @@
     warn("Works on game Version " .. tostring(Settings.Versions.StableGameVersion))
     ConsoleNotification("Kraken Auto Respawn", "Default: " .. tostring(Settings.Toggles.KrakenRespawn))
     ConsoleNotification("Black Market Auto Buy", "Default: " .. tostring(Settings.Toggles.BuyBlackMarket))
-    ActivityNotification("Script Enabled", "Script functionality is enabled.")
+    ConsoleNotification("Script Enabled", "Default: " .. tostring(Settings.Toggles.ScriptEnabled))
+    ActivityNotification("Script Enabled", "Script is enabled.")
 
     -- Check if the Mouse object is available
     local mouse = game:GetService("Players").LocalPlayer:GetMouse()
