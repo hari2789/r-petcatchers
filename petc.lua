@@ -62,21 +62,21 @@ end
 
 -- Function to buy an item from the Black Market
 local function BuyItem(itemIndex)
-  local success, RemoteEvent = pcall(function()
-      return ReplicatedStorage:WaitForChild("Shared")
-          :WaitForChild("Framework")
-          :WaitForChild("Network")
-          :WaitForChild("Remote")
-          :WaitForChild("Event")
-  end)
-  if success then
-      RemoteEvent:FireServer("BuyShopItem", "the-blackmarket", itemIndex)
-      print("Bought Item " .. itemIndex)
-      ActivityNotification("Black Market", "Bought Item: " .. itemIndex)
-  else
-      warn("Failed to find RemoteEvent for buying items from Black Market.")
-  end
+    local RemoteEvent
+    while not RemoteEvent do
+        RemoteEvent = ReplicatedStorage:FindFirstChild("Shared")
+            and ReplicatedStorage.Shared:FindFirstChild("Framework")
+            and ReplicatedStorage.Shared.Framework:FindFirstChild("Network")
+            and ReplicatedStorage.Shared.Framework.Network:FindFirstChild("Remote")
+            and ReplicatedStorage.Shared.Framework.Network.Remote:FindFirstChild("Event")
+        task.wait(1) -- Wait for 1 second before retrying
+    end
+
+    RemoteEvent:FireServer("BuyShopItem", "the-blackmarket", itemIndex)
+    print("Bought Item " .. itemIndex)
+    ActivityNotification("Black Market", "Bought Item: " .. itemIndex)
 end
+
 
 -- Function to automatically buy items from the Black Market
 local function BuyBlackMarket()
