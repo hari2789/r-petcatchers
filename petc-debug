@@ -32,8 +32,8 @@ getgenv().Settings = {
         NotificationDuration = 1 -- Duration of the notification
     },
     Versions = {
-        ScriptVersion = "1.7a", -- Script Version
-        StableGameVersion = "1.01a" -- Game Version
+        ScriptVersion = "v1.7a", -- Script Version
+        StableGameVersion = "v1.01a" -- Game Version
     }
 }
 
