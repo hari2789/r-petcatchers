@@ -45,7 +45,7 @@ local function BuyItem(itemIndex)
       local purchaseSuccessful = false -- Flag to track if the purchase was successful
       RemoteEvent:FireServer("BuyShopItem", "the-blackmarket", itemIndex)
       purchaseSuccessful = true -- Set flag to true after invoking FireServer
-      local result = purchaseSuccessful -- For consistency, you can set result to the value of the flag
+      local result = purchaseSuccessfuL
       if result then
           print("Bought Item " .. itemIndex)
           ActivityNotification("Black Market", "Bought Item: " .. itemIndex)
