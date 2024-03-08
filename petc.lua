@@ -1,10 +1,10 @@
--- V1.03
+-- V1.04
 -- Function to send notifications
 local function SendNotification(title, text)
   game:GetService("StarterGui"):SetCore("SendNotification", {
       Title = tostring(title),
       Text = tostring(text),
-      Duration = 2 -- Adjust the duration as needed
+      Duration = 1 -- Adjust the duration as needed
   })
 end
 
