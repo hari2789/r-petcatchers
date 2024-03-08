@@ -1,3 +1,15 @@
+--[[
+
+    Made by av / hari
+    Version: 1.7
+    Game Version: 1.01a
+
+    Press J to toggle Kraken respawn
+    Press K to toggle Black Market auto buy
+    Press U to toggle the script on/off
+
+]]
+
 -- Settings and default configurations
 local Settings = getgenv().Settings or {
     Versions = {
