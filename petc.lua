@@ -1,21 +1,17 @@
--- Function to send notifications on the bottom right of the screen
-local function SendNotification(message)
-    -- Set a system message on the chat with specified properties
-    game:GetService("StarterGui"):SetCore("ChatMakeSystemMessage", {
-        Text = message, -- Notification message
-        Color = Color3.new(1, 1, 0), -- Text color (yellow)
-        Font = Enum.Font.SourceSansBold, -- Font style
-        FontSize = Enum.FontSize.Size18, -- Font size
-        BackgroundColor = Color3.new(0.5, 0.5, 0.5), -- Greyish background color
-        BackgroundTransparency = 0.5 -- Transparency of the background
+-- Function to send notifications
+local function SendNotification(title, text)
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = tostring(title),
+        Text = tostring(text),
+        Duration = 3 -- Adjust the duration as needed
     })
 end
 
 -- Script settings
 getgenv().Settings = {
-    Enabled = false, -- Initially disabled
+    Enabled = false,
     Keybinds = {
-        Toggle = Enum.KeyCode.R -- Keybind to toggle the script
+        Toggle = Enum.KeyCode.R
     }
 }
 
@@ -29,9 +25,9 @@ UIS.InputBegan:Connect(function(input)
         Settings.Enabled = not Settings.Enabled
         -- Notify the user about the script state change
         if Settings.Enabled then
-            SendNotification("Auto Respawn Enabled!")
+            SendNotification("Auto Respawn", "Enabled")
         else
-            SendNotification("Auto Respawn Disabled!")
+            SendNotification("Auto Respawn", "Disabled")
         end
     end
 end)
