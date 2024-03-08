@@ -8,7 +8,7 @@
     Press K to toggle Black Market auto buy
     Press U to toggle the script on/off
 
-]] local function InjectedScript()
+]] local function Script()
     -- Settings and default configurations
     local Settings = {
         Toggles = {
@@ -133,33 +133,40 @@
         return
     end
 
-    -- Function to check if the chat box is focused
-    local function isChatFocused()
-        local Player = game.Players.LocalPlayer
-        local Chat = Player.PlayerGui:FindFirstChild("Chat")
-        if Chat then
-            local ChatBox = Chat.Frame.ChatBarParentFrame.Frame.BoxFrame.Frame:FindFirstChild("ChatBar")
-            if ChatBox and ChatBox:IsA("TextBox") then
-                return ChatBox:IsFocused()
-            end
-        end
-        return false
+    -- Function to check if the user is typing
+    local function isTyping()
+        return game:GetService("UserInputService"):GetFocusedTextBox()
     end
 
     -- Listen for key presses to toggle Settings and enable/disable script
+    local keybinds = {
+        Settings.Keybinds.KrakenToggle, 
+        Settings.Keybinds.BlackMarketToggle, 
+        Settings.Keybinds.ToggleScript
+    }
     UIS.InputBegan:Connect(function(input)
-        local chatFocused = isChatFocused()
-        if not chatFocused then
-            if input.KeyCode == Settings.Keybinds.KrakenToggle and Settings.Toggles.ScriptEnabled then
-                Settings.Toggles.KrakenRespawn = not Settings.Toggles.KrakenRespawn
-                ConsoleNotification("Kraken Auto Respawn is now:", Settings.Toggles.KrakenRespawn)
-                ActivityNotification("Kraken Auto Respawn", "Status: " .. tostring(Settings.Toggles.KrakenRespawn))
-            elseif input.KeyCode == Settings.Keybinds.BlackMarketToggle and Settings.Toggles.ScriptEnabled then
-                Settings.Toggles.BuyBlackMarket = not Settings.Toggles.BuyBlackMarket
-                ConsoleNotification("Black Market Auto Buy is now: ", Settings.Toggles.BuyBlackMarket)
-                ActivityNotification("Black Market Auto Buy", "Status: " .. tostring(Settings.Toggles.BuyBlackMarket))
-            elseif input.KeyCode == Settings.Keybinds.ToggleScript then
-                ToggleScript()
+        -- Check if the input matches any of the keybinds
+        for _, keybind in ipairs(keybinds) do
+            if input.KeyCode == keybind then
+                -- Check if the user is typing
+                if isTyping() then
+                    warn("Chat box is focused and typing, ignoring keybinds.")
+                    return -- Exit the loop and function early if the user is typing
+                end
+
+                -- Process key press if the user is not typing
+                if keybind == Settings.Keybinds.KrakenToggle and Settings.Toggles.ScriptEnabled then
+                    Settings.Toggles.KrakenRespawn = not Settings.Toggles.KrakenRespawn
+                    ConsoleNotification("Kraken Auto Respawn is now", Settings.Toggles.KrakenRespawn)
+                    ActivityNotification("Kraken Auto Respawn", "Status: " .. tostring(Settings.Toggles.KrakenRespawn))
+                elseif keybind == Settings.Keybinds.BlackMarketToggle and Settings.Toggles.ScriptEnabled then
+                    Settings.Toggles.BuyBlackMarket = not Settings.Toggles.BuyBlackMarket
+                    ConsoleNotification("Black Market Auto Buy is now", Settings.Toggles.BuyBlackMarket)
+                    ActivityNotification("Black Market Auto Buy",
+                        "Status: " .. tostring(Settings.Toggles.BuyBlackMarket))
+                elseif keybind == Settings.Keybinds.ToggleScript then
+                    ToggleScript()
+                end
             end
         end
     end)
@@ -169,4 +176,4 @@
     coroutine.wrap(RespawnKraken)()
 end
 
-InjectedScript() -- Call the encapsulated script function to execute the code
+Script() -- Call the encapsulated script function to execute the code
