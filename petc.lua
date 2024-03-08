@@ -1,19 +1,33 @@
--- Version 1.3
+--[[
+Script version 1.5
+Works on game version 1.01a
 
--- Script settings
-getgenv().Settings = {
-  KrakenRespawn = false,
+Toggle Kraken Respawn is R 
+Toggle Black Market Auto Buy is Y
+--]]
+
+-- Settings and default configurations
+local Settings = getgenv().Settings or {
+  KrakenRespawn = false,  -- Toggle for Kraken respawn
+  BuyBlackMarket = false, -- Toggle for Black Market auto buy
   Keybinds = {
-      KrakenToggle = Enum.KeyCode.R
+      KrakenToggle = Enum.KeyCode.R,       -- Keybind for toggling Kraken respawn
+      BlackMarketToggle = Enum.KeyCode.Y   -- Keybind for toggling Black Market auto buy
+  },
+  Timers = {
+      RespawnCooldown = 4,  -- Wait time between Kraken respawns
+      BuyDelay = 0.1,       -- Delay between buying each item
+      BuyCooldown = 5,      -- Cooldown period after buying all items
+      CheckCooldown = 1     -- Cooldown for checking if the actions should be performed
   }
 }
 
--- Defining GetService
+-- Services
 local UIS = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
--- Function to send notifications
-local function KrakenRespawnNotification(title, text)
+-- Function to display notifications
+local function ActivityNotification(title, text)
   game:GetService("StarterGui"):SetCore("SendNotification", {
       Title = tostring(title),
       Text = tostring(text),
@@ -21,33 +35,84 @@ local function KrakenRespawnNotification(title, text)
   })
 end
 
--- Notify when the script is loaded
-print("Loaded")
-KrakenRespawnNotification("Status", "Script Has Been Loaded")
-KrakenRespawnNotification("Kraken Auto Respawn", "Default: " .. tostring(Settings.KrakenRespawn))
+-- Function to respawn the Kraken
+local function RespawnKraken()
+  while true do
+      if Settings.KrakenRespawn then
+          local success, RemoteEvent = pcall(function()
+              return ReplicatedStorage:WaitForChild("Shared")
+                  :WaitForChild("Framework")
+                  :WaitForChild("Network")
+                  :WaitForChild("Remote")
+                  :WaitForChild("Event")
+          end)
+          if success then
+              RemoteEvent:FireServer("RespawnBoss", "the-kraken")
+              print("Respawned Kraken")
+              task.wait(Settings.Timers.RespawnCooldown)
+          else
+              warn("Failed to find RemoteEvent for Kraken respawn.")
+          end
+      else
+          task.wait(Settings.Timers.CheckCooldown)
+          break  -- Exit the loop when KrakenRespawn is set to false
+      end
+  end
+end
 
--- Listen for key presses
+-- Function to buy an item from the Black Market
+local function BuyItem(itemIndex)
+  local success, RemoteEvent = pcall(function()
+      return ReplicatedStorage:WaitForChild("Shared")
+          :WaitForChild("Framework")
+          :WaitForChild("Network")
+          :WaitForChild("Remote")
+          :WaitForChild("Event")
+  end)
+  if success then
+      RemoteEvent:FireServer("BuyShopItem", "the-blackmarket", itemIndex)
+      print("Bought Item " .. itemIndex)
+      ActivityNotification("Black Market", "Bought Item: " .. itemIndex)
+  else
+      warn("Failed to find RemoteEvent for buying items from Black Market.")
+  end
+end
+
+-- Function to automatically buy items from the Black Market
+local function BuyBlackMarket()
+  while true do 
+      if Settings.BuyBlackMarket then
+          for i = 1, 3 do
+              BuyItem(i)
+              task.wait(Settings.Timers.BuyDelay)
+          end
+          task.wait(Settings.Timers.BuyCooldown)
+      else
+          task.wait(Settings.Timers.CheckCooldown)
+          break  -- Exit the loop when BuyBlackMarket is set to false
+      end
+  end
+end
+
+-- Notify script loading and initial settings
+print("Loaded")
+ActivityNotification("Status", "Script Has Been Loaded")
+ActivityNotification("Kraken Auto Respawn", "Default: " .. tostring(Settings.KrakenRespawn))
+ActivityNotification("Black Market Auto Buy", "Default: " .. tostring(Settings.BuyBlackMarket))
+
+-- Listen for key presses to toggle settings
 UIS.InputBegan:Connect(function(input)
-  -- Check if the input is the toggle key
   if input.KeyCode == Settings.Keybinds.KrakenToggle then
-      -- Toggle the script state
       Settings.KrakenRespawn = not Settings.KrakenRespawn
-      -- Log the change
       print("Kraken Auto Respawn is now:", Settings.KrakenRespawn)
-      -- Send notification about state
-      KrakenRespawnNotification("Kraken Auto Respawn", "Default: " .. tostring(Settings.KrakenRespawn))
+      ActivityNotification("Kraken Auto Respawn", "Status: " .. tostring(Settings.KrakenRespawn))
+  elseif input.KeyCode == Settings.Keybinds.BlackMarketToggle then
+      Settings.BuyBlackMarket = not Settings.BuyBlackMarket
+      print("Black Market Auto Buy is now: ", Settings.BuyBlackMarket)
+      ActivityNotification("Black Market Auto Buy", "Status: " .. tostring(Settings.BuyBlackMarket))
   end
 end)
 
--- Loop Kraken respawn
-while true do
-  if Settings.KrakenRespawn then
-      -- Respawn Kraken
-      ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network"):WaitForChild("Remote"):WaitForChild("Event"):FireServer("RespawnBoss", "the-kraken")
-      -- Log Kraken respawn
-      print("Respawned")
-      task.wait(4)
-  else
-      task.wait(1)
-  end
-end
+-- Start the functions for Kraken respawning and Black Market auto-buying
+RespawnKraken()
+BuyBlackMarket()
