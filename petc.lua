@@ -1,4 +1,4 @@
--- V1.08
+-- V1.1
 
 -- Function to send notifications
 local function KrakenRespawnNotification(title, text)
@@ -9,10 +9,6 @@ local function KrakenRespawnNotification(title, text)
   })
 end
 
--- Notify when the script is loaded
-KrakenRespawnNotification("Status", "Script Has Been Loaded")
-KrakenRespawnNotification("Kraken Auto Respawn", "Default: Disabled")
-
 -- Script settings
 getgenv().Settings = {
   KrakenRespawn = false,
@@ -21,8 +17,14 @@ getgenv().Settings = {
   }
 }
 
+-- Defining variables
 local UIS = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Status = tostring(Settings.KrakenRespawn)
+
+-- Notify when the script is loaded
+KrakenRespawnNotification("Status", "Script Has Been Loaded")
+KrakenRespawnNotification("Kraken Auto Respawn", "Default: " .. Status)
 
 -- Listen for key presses
 UIS.InputBegan:Connect(function(input)
@@ -30,19 +32,17 @@ UIS.InputBegan:Connect(function(input)
   if input.KeyCode == Settings.Keybinds.KrakenToggle then
       -- Toggle the script state
       Settings.KrakenRespawn = not Settings.KrakenRespawn
+      -- Update the status
+      Status = tostring(Settings.KrakenRespawn)
       -- Notify the user about the script state change
-      if Settings.KrakenRespawn then
-          KrakenRespawnNotification("Kraken Auto Respawn", "Enabled")
-      else
-          KrakenRespawnNotification("Kraken Auto Respawn", "Disabled")
-      end
+      KrakenRespawnNotification("Kraken Auto Respawn", "Default: " .. Status)
   end
 end)
 
--- Continuous loop to perform action if script is enabled
+-- Loop Kraken respawn
 while true do
   if Settings.KrakenRespawn then
-      -- Fire the server event to respawn the boss
+      -- Respawn Kraken
       ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network"):WaitForChild("Remote"):WaitForChild("Event"):FireServer("RespawnBoss", "the-kraken")
       task.wait(4)
   else
