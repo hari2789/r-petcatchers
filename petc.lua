@@ -43,6 +43,7 @@ local function BuyItem(itemIndex)
   end)
   if success then
       local result = RemoteEvent:FireServer("BuyShopItem", "the-blackmarket", itemIndex)
+      print("BuyItem - Result:", result) -- Print the result of the FireServer call
       if result then
           print("Bought Item " .. itemIndex)
           ActivityNotification("Black Market", "Bought Item: " .. itemIndex)
