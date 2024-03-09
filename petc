@@ -22,7 +22,7 @@
             ToggleScript = Enum.KeyCode.U -- Keybind for enabling/disabling the script
         },
         Timers = {
-            RespawnCooldown = 4, -- Wait time between Kraken respawns
+            RespawnCooldown = 22, -- Wait time between Kraken respawns
             BuyDelay = 0.1, -- Delay between buying each item
             BuyCooldown = 1, -- Cooldown period after buying all items
             CheckCooldown = 1, -- Cooldown for checking if the actions should be performed
