@@ -22,7 +22,6 @@
         },
         Timers = {
             RespawnCooldown = 5, -- Wait() time between Kraken respawns
-            BuyDelay = 0.1, -- Delay between buying each item
             ShrineDelay = 2, -- Delay between using each shrine
             BuyCooldown = 1, -- Cooldown period after buying all items
             CheckCooldown = 1, -- Cooldown for checking if the actions should be performed
@@ -152,7 +151,7 @@
                 UseShrine("rune")
                 UseShrine("ticket")
                 UseShrine("better-cube")
-                wait(Settings.Timers.ShrineDelay)
+                task.wait()
             else
                 return
             end
@@ -178,7 +177,7 @@
             if Settings.Toggles.BuyBlackMarket and Settings.Toggles.ScriptEnabled then
                 for i = 1, 3 do
                     BuyItem("the-blackmarket", i)
-                    wait(Settings.Timers.BuyDelay)
+                    task.wait()
                 end
                 wait(Settings.Timers.BuyCooldown)
             else
@@ -193,7 +192,7 @@
             if Settings.Toggles.BuyMagicShop and Settings.Toggles.ScriptEnabled then
                 for i = 1, 3 do
                     BuyItem("magic-shop", i)
-                    wait(Settings.Timers.BuyDelay)
+                    task.wait()
                 end
                 wait(Settings.Timers.BuyCooldown)
             else
@@ -208,7 +207,7 @@
             if Settings.Toggles.BuyGemTrader and Settings.Toggles.ScriptEnabled then
                 for i = 1, 3 do
                     BuyItem("gem-trader", i)
-                    wait(Settings.Timers.BuyDelay)
+                    task.wait()
                 end
                 wait(Settings.Timers.BuyCooldown)
             else
@@ -223,7 +222,7 @@
             if Settings.Toggles.BuyAuburnShop and Settings.Toggles.ScriptEnabled then
                 for i = 1, 3 do
                     BuyItem("auburn-shop", i)
-                    wait(Settings.Timers.BuyDelay)
+                    task.wait()
                 end
                 wait(Settings.Timers.BuyCooldown)
             else
