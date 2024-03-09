@@ -13,6 +13,7 @@
             ScriptEnabled = true, -- Toggle for enabling/disabling the script
             RespawnKraken = false, -- Toggle for Kraken respawn
             StartKraken = false, -- Toggle for starting Kraken fight
+            StartSlime = false, -- Toggle for starting Slime fight
             BuyBlackMarket = false, -- Toggle for Black Market auto buy
             BuyGemTrader = false, -- Toggle for Gem Trader auto buy
             BuyAuburnShop = false, -- Toggle for Auburn Shop auto buy
@@ -39,6 +40,7 @@
     -- Flags to control the loops
     local stopRespawnKrakenLoop = false
     local stopStartKrakenLoop = false
+    local stopStartSlimeLoop = false
     local stopBuyBlackMarketLoop = false
     local stopBuyMagicShopLoop = false
     local stopBuyGemTraderLoop = false
@@ -88,6 +90,28 @@
                 local args = {
                     [1] = "BossRequest",
                     [2] = "the-kraken",
+                    [3] = 25
+                }
+                local success, error_message = pcall(function()
+                    game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild(
+                        "Network"):WaitForChild("Remote"):WaitForChild("Function"):InvokeServer(unpack(args))
+                end)
+                if not success then
+                    warn("Error while invoking server function:", error_message)
+                end
+            else
+                return
+            end
+        end
+    end
+
+    -- Function to start the Slime fight
+    local function StartSlime()
+        while not stopStartSlimeLoop do
+            if Settings.Toggles.StartSlime and Settings.Toggles.ScriptEnabled then
+                local args = {
+                    [1] = "BossRequest",
+                    [2] = "king-slime",
                     [3] = 25
                 }
                 local success, error_message = pcall(function()
@@ -304,7 +328,7 @@
             end
         end)
 
-    -- Creates the Start Kraken Fight Section
+    -- Creates the Start Kraken Fight Toggle
     local UIStartKrakenToggle = Kraken:NewToggle("Start Kraken Fight", "Starts the Kraken fight", function(state)
         Settings.Toggles.StartKraken = state
         stopStartKrakenLoop = not state
@@ -312,6 +336,20 @@
             coroutine.wrap(StartKraken)()
         end
     end)
+
+    -- Creates the Slime Section
+    local Slime = Bosses:NewSection()
+
+    -- Creates the Start Slime Fight Toggle
+    local UIStartSlimeToggle = Slime:NewToggle("Start Slime Fight", "Starts the Slime fight", function(state)
+        Settings.Toggles.StartSlime = state
+        stopStartSlimeLoop = not state
+        if state then
+            coroutine.wrap(StartSlime)()
+        end
+    end)
+    
+    -- End of Script.
 end
 
 Script() -- Call the encapsulated script function to execute the code
