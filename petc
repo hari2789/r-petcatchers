@@ -22,6 +22,7 @@
         Timers = {
             RespawnCooldown = 5, -- Wait() time between Kraken respawns
             BuyDelay = 0.1, -- Delay between buying each item
+            ShrineDelay = 2, -- Delay between using each shrine
             BuyCooldown = 1, -- Cooldown period after buying all items
             CheckCooldown = 1, -- Cooldown for checking if the actions should be performed
             NotificationDuration = 1 -- Duration of the notification
@@ -33,9 +34,16 @@
     }
 
     -- Services
-    local UIS = game:GetService("UserInputService")
     local ReplicatedStorage = game:GetService("ReplicatedStorage")
-    local RunService = game:GetService("RunService")
+
+    -- Flags to control the loops
+    local stopRespawnKrakenLoop = false
+    local stopStartKrakenLoop = false
+    local stopBuyBlackMarketLoop = false
+    local stopBuyMagicShopLoop = false
+    local stopBuyGemTraderLoop = false
+    local stopBuyAuburnShopLoop = false
+    local stopUseAllShrinesLoop = false
 
     -- Function to display notifications
     local function ActivityNotification(title, text)
@@ -57,7 +65,7 @@
 
     -- Function to respawn the Kraken
     local function RespawnKraken()
-        while true do
+        while not stopRespawnKrakenLoop do
             if Settings.Toggles.RespawnKraken and Settings.Toggles.ScriptEnabled then
                 local success, errorMessage = pcall(function()
                     ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network")
@@ -68,29 +76,29 @@
                     warn("Error while respawning Kraken:", errorMessage)
                 end
             else
-                wait(Settings.Timers.CheckCooldown)
+                return
             end
         end
     end
 
     -- Function to start the Kraken fight
     local function StartKraken()
-        while true do
+        while not stopStartKrakenLoop do
             if Settings.Toggles.StartKraken and Settings.Toggles.ScriptEnabled then
                 local args = {
                     [1] = "BossRequest",
                     [2] = "the-kraken",
                     [3] = 25
                 }
-
                 local success, error_message = pcall(function()
                     game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild(
                         "Network"):WaitForChild("Remote"):WaitForChild("Function"):InvokeServer(unpack(args))
                 end)
-
                 if not success then
                     warn("Error while invoking server function:", error_message)
                 end
+            else
+                return
             end
         end
     end
@@ -110,7 +118,7 @@
 
     -- Function to automatically use all the shrines
     local function UseAllShrines()
-        while true do
+        while not stopUseAllShrinesLoop do
             if Settings.Toggles.UseAllShrines and Settings.Toggles.ScriptEnabled then
                 UseShrine("egg")
                 UseShrine("berry")
@@ -120,9 +128,9 @@
                 UseShrine("rune")
                 UseShrine("ticket")
                 UseShrine("better-cube")
-                wait(Settings.Timers.BuyCooldown)
+                wait(Settings.Timers.ShrineDelay)
             else
-                wait(Settings.Timers.CheckCooldown)
+                return
             end
         end
     end
@@ -142,7 +150,7 @@
 
     -- Function to automatically buy items from the Black Market
     local function BuyBlackMarket()
-        while true do
+        while not stopBuyBlackMarketLoop do
             if Settings.Toggles.BuyBlackMarket and Settings.Toggles.ScriptEnabled then
                 for i = 1, 3 do
                     BuyItem("the-blackmarket", i)
@@ -150,14 +158,14 @@
                 end
                 wait(Settings.Timers.BuyCooldown)
             else
-                wait(Settings.Timers.CheckCooldown)
+                return
             end
         end
     end
 
     -- Function to automatically buy items from the Magic Shop
     local function BuyMagicShop()
-        while true do
+        while not stopBuyMagicShopLoop do
             if Settings.Toggles.BuyMagicShop and Settings.Toggles.ScriptEnabled then
                 for i = 1, 3 do
                     BuyItem("magic-shop", i)
@@ -165,14 +173,14 @@
                 end
                 wait(Settings.Timers.BuyCooldown)
             else
-                wait(Settings.Timers.CheckCooldown)
+                return
             end
         end
     end
 
     -- Function to automatically buy items from the Gem Trader
     local function BuyGemTrader()
-        while true do
+        while not stopBuyGemTraderLoop do
             if Settings.Toggles.BuyGemTrader and Settings.Toggles.ScriptEnabled then
                 for i = 1, 3 do
                     BuyItem("gem-trader", i)
@@ -180,14 +188,14 @@
                 end
                 wait(Settings.Timers.BuyCooldown)
             else
-                wait(Settings.Timers.CheckCooldown)
+                return
             end
         end
     end
 
     -- Function to automatically buy items from the Auburn Shop
     local function BuyAuburnShop()
-        while true do
+        while not stopBuyAuburnShopLoop do
             if Settings.Toggles.BuyAuburnShop and Settings.Toggles.ScriptEnabled then
                 for i = 1, 3 do
                     BuyItem("auburn-shop", i)
@@ -195,7 +203,7 @@
                 end
                 wait(Settings.Timers.BuyCooldown)
             else
-                wait(Settings.Timers.CheckCooldown)
+                return
             end
         end
     end
@@ -237,16 +245,9 @@
     local AutoBuyShops = AutoUse:NewSection("Auto Buy Shops")
     local UIBlackMarketToggle = AutoBuyShops:NewToggle("Auto Buy Black Market", "Toggles black market auto buy",
         function(state)
-            state = Settings.Toggles.BuyBlackMarket
+            Settings.Toggles.BuyBlackMarket = state
+            stopBuyBlackMarketLoop = not state
             if state then
-                Settings.Toggles.BuyBlackMarket = false
-            else
-                Settings.Toggles.BuyBlackMarket = true
-            end
-            while wait() do
-                if Settings.Toggles.BuyBlackMarket == false then
-                    return
-                end
                 coroutine.wrap(BuyBlackMarket)()
             end
         end)
@@ -254,16 +255,9 @@
     -- Creates the Magic Shop Section
     local UIMagicShopToggle = AutoBuyShops:NewToggle("Auto Buy Magic Shop", "Toggles magic shop auto buy",
         function(state)
-            state = Settings.Toggles.BuyMagicShop
+            Settings.Toggles.BuyMagicShop = state
+            stopBuyMagicShopLoop = not state
             if state then
-                Settings.Toggles.BuyMagicShop = false
-            else
-                Settings.Toggles.BuyMagicShop = true
-            end
-            while wait() do
-                if Settings.Toggles.BuyMagicShop == false then
-                    return
-                end
                 coroutine.wrap(BuyMagicShop)()
             end
         end)
@@ -271,16 +265,9 @@
     -- Creates the Gem Trader Section
     local UIGemTraderToggle = AutoBuyShops:NewToggle("Auto Buy Gem Trader", "Toggles gem trader auto buy",
         function(state)
-            state = Settings.Toggles.BuyGemTrader
+            Settings.Toggles.BuyGemTrader = state
+            stopBuyGemTraderLoop = not state
             if state then
-                Settings.Toggles.BuyGemTrader = false
-            else
-                Settings.Toggles.BuyGemTrader = true
-            end
-            while wait() do
-                if Settings.Toggles.BuyGemTrader == false then
-                    return
-                end
                 coroutine.wrap(BuyGemTrader)()
             end
         end)
@@ -288,16 +275,9 @@
     -- Creates the Auburn Shop Section
     local UIAuburnShopToggle = AutoBuyShops:NewToggle("Auto Buy Auburn Shop", "Toggles auburn shop auto buy",
         function(state)
-            state = Settings.Toggles.BuyAuburnShop
+            Settings.Toggles.BuyAuburnShop = state
+            stopBuyAuburnShopLoop = not state
             if state then
-                Settings.Toggles.BuyAuburnShop = false
-            else
-                Settings.Toggles.BuyAuburnShop = true
-            end
-            while wait() do
-                if Settings.Toggles.BuyAuburnShop == false then
-                    return
-                end
                 coroutine.wrap(BuyAuburnShop)()
             end
         end)
@@ -306,16 +286,9 @@
     local UseAllShrinesSection = AutoUse:NewSection("Shrines")
     local UIUseAllShrinesToggle = UseAllShrinesSection:NewToggle("Use All Shrines",
         "Toggles the state of the Use All Shrines", function(state)
-            state = Settings.Toggles.UseAllShrines
+            Settings.Toggles.UseAllShrines = state
+            stopUseAllShrinesLoop = not state
             if state then
-                Settings.Toggles.UseAllShrines = false
-            else
-                Settings.Toggles.UseAllShrines = true
-            end
-            while wait() do
-                if Settings.Toggles.UseAllShrines == false then
-                    return
-                end
                 coroutine.wrap(UseAllShrines)()
             end
         end)
@@ -324,32 +297,18 @@
     local Kraken = Bosses:NewSection()
     local UIRespawnKrakenToggle = Kraken:NewToggle("Respawn Kraken", "Toggles the state of the Respawn Kraken",
         function(state)
-            state = Settings.Toggles.RespawnKraken
+            Settings.Toggles.RespawnKraken = state
+            stopRespawnKrakenLoop = not state
             if state then
-                Settings.Toggles.RespawnKraken = false
-            else
-                Settings.Toggles.RespawnKraken = true
-            end
-            while wait() do
-                if Settings.Toggles.RespawnKraken == false then
-                    return
-                end
                 coroutine.wrap(RespawnKraken)()
             end
         end)
 
     -- Creates the Start Kraken Fight Section
     local UIStartKrakenFightButton = Kraken:NewToggle("Start Kraken Fight", "Starts the Kraken fight", function()
-        state = Settings.Toggles.StartKraken
+        Settings.Toggles.StartKraken = state
+        stopStartKrakenLoop = not state
         if state then
-            Settings.Toggles.StartKraken = false
-        else
-            Settings.Toggles.StartKraken = true
-        end
-        while wait() do
-            if Settings.Toggles.StartKraken == false then
-                return
-            end
             coroutine.wrap(StartKraken)()
         end
     end)
