@@ -245,10 +245,10 @@
 
     -- Gets the UI Library
     local Library =
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/vyworn/r-petcatchers/main/kavo-ui-lib-modified.lua"))()
 
     -- Creates the window
-    local Window = Library.CreateLib("Pet Catchers", "Ocean")
+    local Window = Library.CreateLib("by Av / Hari \t\t\t\t\t\t Pet Catchers", "Ocean")
 
     -- Creates the Main tab
     local Main = Window:NewTab("Main")
@@ -348,7 +348,7 @@
             coroutine.wrap(StartSlime)()
         end
     end)
-    
+
     -- End of Script.
 end
 
