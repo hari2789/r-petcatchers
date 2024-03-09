@@ -57,7 +57,7 @@
 
     -- Function to respawn the Kraken
     local function RespawnKraken()
-        while wait() do
+        while true do
             if Settings.Toggles.RespawnKraken and Settings.Toggles.ScriptEnabled then
                 local success, errorMessage = pcall(function()
                     ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network")
@@ -75,7 +75,7 @@
 
     -- Function to start the Kraken fight
     local function StartKraken()
-        while wait() do
+        while true do
             if Settings.Toggles.StartKraken and Settings.Toggles.ScriptEnabled then
                 local args = {
                     [1] = "BossRequest",
@@ -110,7 +110,7 @@
 
     -- Function to automatically use all the shrines
     local function UseAllShrines()
-        while wait() do
+        while true do
             if Settings.Toggles.UseAllShrines and Settings.Toggles.ScriptEnabled then
                 UseShrine("egg")
                 UseShrine("berry")
@@ -142,7 +142,7 @@
 
     -- Function to automatically buy items from the Black Market
     local function BuyBlackMarket()
-        while wait() do
+        while true do
             if Settings.Toggles.BuyBlackMarket and Settings.Toggles.ScriptEnabled then
                 for i = 1, 3 do
                     BuyItem("the-blackmarket", i)
@@ -157,7 +157,7 @@
 
     -- Function to automatically buy items from the Magic Shop
     local function BuyMagicShop()
-        while wait() do
+        while true do
             if Settings.Toggles.BuyMagicShop and Settings.Toggles.ScriptEnabled then
                 for i = 1, 3 do
                     BuyItem("magic-shop", i)
@@ -172,7 +172,7 @@
 
     -- Function to automatically buy items from the Gem Trader
     local function BuyGemTrader()
-        while wait() do
+        while true do
             if Settings.Toggles.BuyGemTrader and Settings.Toggles.ScriptEnabled then
                 for i = 1, 3 do
                     BuyItem("gem-trader", i)
@@ -187,7 +187,7 @@
 
     -- Function to automatically buy items from the Auburn Shop
     local function BuyAuburnShop()
-        while wait() do
+        while true do
             if Settings.Toggles.BuyAuburnShop and Settings.Toggles.ScriptEnabled then
                 for i = 1, 3 do
                     BuyItem("auburn-shop", i)
