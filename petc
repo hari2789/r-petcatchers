@@ -22,7 +22,7 @@
             ToggleScript = Enum.KeyCode.U -- Keybind for enabling/disabling the script
         },
         Timers = {
-            RespawnCooldown = 4, -- Wait time between Kraken respawns
+            RespawnCooldown = 22, -- Wait time between Kraken respawns
             BuyDelay = 0.1, -- Delay between buying each item
             BuyCooldown = 1, -- Cooldown period after buying all items
             CheckCooldown = 1, -- Cooldown for checking if the actions should be performed
@@ -59,18 +59,20 @@
     -- Function to respawn the Kraken
     local function RespawnKraken()
         while true do
-            if Settings.Toggles.KrakenRespawn and Settings.Toggles.ScriptEnabled then
-                local success, errorMessage = pcall(function()
-                    ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network")
-                        :WaitForChild("Remote"):WaitForChild("Event"):FireServer("RespawnBoss", "the-kraken")
-                    wait(Settings.Timers.RespawnCooldown)
-                end)
+            for i = 1, 10 do
+                if Settings.Toggles.KrakenRespawn and Settings.Toggles.ScriptEnabled then
+                    local success, errorMessage = pcall(function()
+                        ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network")
+                            :WaitForChild("Remote"):WaitForChild("Event"):FireServer("RespawnBoss", "the-kraken")
+                        wait(Settings.Timers.RespawnCooldown)
+                    end)
 
-                if not success then
-                    warn("Error while respawning Kraken:", errorMessage)
+                    if not success then
+                        warn("Error while respawning Kraken:", errorMessage)
+                    end
+                else
+                    wait(Settings.Timers.CheckCooldown)
                 end
-            else
-                wait(Settings.Timers.CheckCooldown)
             end
         end
     end
@@ -139,7 +141,8 @@
     end
 
     -- Listen for key presses to toggle Settings and enable/disable script
-    local keybinds = {Settings.Keybinds.KrakenToggle, Settings.Keybinds.BlackMarketToggle, Settings.Keybinds.ToggleScript}
+    local keybinds = {Settings.Keybinds.KrakenToggle, Settings.Keybinds.BlackMarketToggle,
+                      Settings.Keybinds.ToggleScript}
     -- Listen for key presses to toggle Settings and enable/disable script
     UIS.InputBegan:Connect(function(input, isProcessed)
         if not isProcessed then
