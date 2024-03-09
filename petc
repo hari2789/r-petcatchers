@@ -1,8 +1,8 @@
 --[[
 
     Made by Av & Hari
-    Version: v2.0
-    Game Version: v1.1.2
+    Version: v2.1
+    Game Version: v1.1.7
 
     Press M to toggle the UI
 
@@ -29,8 +29,8 @@
             NotificationDuration = 1 -- Duration of the notification
         },
         Versions = {
-            ScriptVersion = "v2.0", -- Script Version
-            StableGameVersion = "v1.1.2" -- Game Version
+            ScriptVersion = "v2.1", -- Script Version
+            StableGameVersion = "v1.1.7" -- Game Version
         }
     }
 
