@@ -305,7 +305,7 @@
         end)
 
     -- Creates the Start Kraken Fight Section
-    local UIStartKrakenFightButton = Kraken:NewToggle("Start Kraken Fight", "Starts the Kraken fight", function()
+    local UIStartKrakenToggle = Kraken:NewToggle("Start Kraken Fight", "Starts the Kraken fight", function(state)
         Settings.Toggles.StartKraken = state
         stopStartKrakenLoop = not state
         if state then
