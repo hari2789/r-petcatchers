@@ -23,7 +23,7 @@
         Timers = {
             RespawnCooldown = 5, -- Wait() time between Kraken respawns
             ShrineDelay = 2, -- Delay between using each shrine
-            BuyCooldown = 1, -- Cooldown period after buying all items
+            BuyCooldown = 0.1, -- Cooldown period after buying all items
             CheckCooldown = 1, -- Cooldown for checking if the actions should be performed
             NotificationDuration = 1 -- Duration of the notification
         },
