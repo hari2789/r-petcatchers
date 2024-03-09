@@ -59,7 +59,7 @@
     -- Function to respawn the Kraken
     local function RespawnKraken()
         while true do
-            for i = 1, 10 do
+            for i = 1, 9 do
                 if Settings.Toggles.KrakenRespawn and Settings.Toggles.ScriptEnabled then
                     local success, errorMessage = pcall(function()
                         ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network")
