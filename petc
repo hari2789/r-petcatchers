@@ -24,7 +24,6 @@
             RespawnCooldown = 5, -- Wait() time between Kraken respawns
             ShrineDelay = 2, -- Delay between using each shrine
             BuyCooldown = 0.1, -- Cooldown period after buying all items
-            CheckCooldown = 1, -- Cooldown for checking if the actions should be performed
             NotificationDuration = 1 -- Duration of the notification
         },
         Versions = {
@@ -92,7 +91,7 @@
                     [3] = 25
                 }
                 local success, error_message = pcall(function()
-                    game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild(
+                    ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild(
                         "Network"):WaitForChild("Remote"):WaitForChild("Function"):InvokeServer(unpack(args))
                 end)
                 if not success then
@@ -114,7 +113,7 @@
                     [3] = 25
                 }
                 local success, error_message = pcall(function()
-                    game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild(
+                    ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild(
                         "Network"):WaitForChild("Remote"):WaitForChild("Function"):InvokeServer(unpack(args))
                 end)
                 if not success then
@@ -144,12 +143,19 @@
         while not stopUseAllShrinesLoop do
             if Settings.Toggles.UseAllShrines and Settings.Toggles.ScriptEnabled then
                 UseShrine("egg")
+                task.wait(0.25)
                 UseShrine("berry")
+                task.wait(0.25)
                 UseShrine("cherry")
+                task.wait(0.25)
                 UseShrine("radioactive")
+                task.wait(0.25)
                 UseShrine("gem")
+                task.wait(0.25)
                 UseShrine("rune")
+                task.wait(0.25)
                 UseShrine("ticket")
+                task.wait(0.25)
                 UseShrine("better-cube")
                 task.wait()
             else
