@@ -58,7 +58,7 @@
 
     -- Function to respawn the Kraken
     local function RespawnKraken()
-        for i = 1, 9 do
+        while true do
             if Settings.Toggles.KrakenRespawn and Settings.Toggles.ScriptEnabled then
                 local success, errorMessage = pcall(function()
                     ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network")
@@ -70,8 +70,6 @@
                     warn("Error while respawning Kraken:", errorMessage)
                 end
             else
-                wait(Settings.Timers.CheckCooldown)
-
             end
         end
     end
