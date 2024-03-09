@@ -22,7 +22,7 @@
             ToggleScript = Enum.KeyCode.U -- Keybind for enabling/disabling the script
         },
         Timers = {
-            RespawnCooldown = 23, -- Wait time between Kraken respawns
+            RespawnCooldown = 22, -- Wait time between Kraken respawns
             BuyDelay = 0.1, -- Delay between buying each item
             BuyCooldown = 1, -- Cooldown period after buying all items
             CheckCooldown = 1, -- Cooldown for checking if the actions should be performed
@@ -70,6 +70,7 @@
                     warn("Error while respawning Kraken:", errorMessage)
                 end
             else
+                wait(Settings.Timers.CheckCooldown)
             end
         end
     end
@@ -138,8 +139,7 @@
     end
 
     -- Listen for key presses to toggle Settings and enable/disable script
-    local keybinds = {Settings.Keybinds.KrakenToggle, Settings.Keybinds.BlackMarketToggle,
-                      Settings.Keybinds.ToggleScript}
+    local keybinds = {Settings.Keybinds.KrakenToggle, Settings.Keybinds.BlackMarketToggle, Settings.Keybinds.ToggleScript}
     -- Listen for key presses to toggle Settings and enable/disable script
     UIS.InputBegan:Connect(function(input, isProcessed)
         if not isProcessed then
