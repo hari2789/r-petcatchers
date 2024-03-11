@@ -141,27 +141,22 @@ local function Script()
         end
     end
 
-    local function UseShrine(shrine)
-        local success, result = pcall(RemoteEvent:FireServer("UseShrine", shrine))
-        if not success then
-            warn("Failed to use shrine:", shrine)
-        end
-    end
-
     -- In-game names of the shrines
     local shrines = {"cube", "berry", "egg", "gem", "ticket", "radioactive", "better-cube", "rune", "cherry"}
 
-    -- Function to automatically use all the shrines
+    -- Function to use a shrine
+    local function UseShrine(shrineName)
+        local success, result = pcall(RemoteEvent.FireServer, RemoteEvent, "UseShrine", shrineName)
+        if not success then
+            warn("Failed to use shrine:", shrineName)
+        end
+    end
+
+    -- Use coroutine.wrap for using shrines asynchronously
     local function UseAllShrines()
-        while not stopUseAllShrinesLoop do
-            if Settings.Toggles.UseAllShrines and Settings.Toggles.ScriptEnabled then
-                for i, shrine in ipairs(shrines) do
-                    UseShrine(shrine)
-                    wait()
-                end
-            else
-                return
-            end
+        for _, shrineName in ipairs(shrines) do
+            coroutine.wrap(UseShrine)(shrineName)
+            wait(0.1) 
         end
     end
 
@@ -254,6 +249,7 @@ local function Script()
 
     -- Creates the Use All Shrines Toggle
     local UseAllShrinesSection = AutoUse:NewSection("Shrines")
+    -- Toggle for using all shrines
     local UIUseAllShrinesToggle = UseAllShrinesSection:NewToggle("Use All Shrines",
         "Toggles the state of the Use All Shrines", function(state)
             Settings.Toggles.UseAllShrines = state
