@@ -1044,7 +1044,7 @@ function Kavo.CreateLib(kavName, themeList)
                     end
                 end)()
                 return textboxfunctions
-            end            
+            end
 
             function Elements:NewToggle(tname, nTip, callback)
                 local TogFunction = {}
