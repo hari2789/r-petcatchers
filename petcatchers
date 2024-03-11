@@ -23,7 +23,6 @@ local function Script()
         },
         Timers = {
             RespawnCooldown = 5, -- Wait() time between Kraken respawns
-            BuyCooldown = 0.1, -- Cooldown period after buying all items
             NotificationDuration = 1 -- Duration of the notification
         },
         Versions = {
@@ -166,26 +165,17 @@ local function Script()
         end
     end
 
+    -- In-game names of the shrines
+    local shrines = {"cube", "berry", "egg", "gem", "ticket", "radioactive", "better-cube", "rune", "cherry"}
+
     -- Function to automatically use all the shrines
     local function UseAllShrines()
         while not stopUseAllShrinesLoop do
             if Settings.Toggles.UseAllShrines and Settings.Toggles.ScriptEnabled then
-                UseShrine("egg")
-                wait(0.2)
-                UseShrine("berry")
-                wait(0.2)
-                UseShrine("cherry")
-                wait(0.2)
-                UseShrine("radioactive")
-                wait(0.2)
-                UseShrine("gem")
-                wait(0.2)
-                UseShrine("rune")
-                wait(0.2)
-                UseShrine("ticket")
-                wait(0.2)
-                UseShrine("better-cube")
-                wait()
+                for i, shrine in ipairs(shrines) do
+                    UseShrine(shrine)
+                    wait()
+                end
             else
                 return
             end
@@ -205,8 +195,10 @@ local function Script()
         end
     end
 
-    local shops = {"the-blackmarket", "magic-shop", "gem-trader", "auburn-shop"} -- In-game names of the shops
-    local shopLoopNames = {"BlackMarket", "MagicShop", "GemTrader", "AuburnShop"} -- Name of the shops for the script
+    -- In-game names of the shops
+    local shops = {"auburn-shop", "gem-trader", "magic-shop", "the-blackmarket"}
+    -- Name of the shops for the script
+    local shopLoopNames = {"AuburnShop", "GemTrader", "MagicShop", "BlackMarket"}
 
     -- Create functions for buying from each shop
     for i, shopName in ipairs(shops) do
@@ -218,7 +210,7 @@ local function Script()
                         BuyItem(shopName, j)
                         wait()
                     end
-                    wait(Settings.Timers.BuyCooldown)
+                    wait()
                 else
                     return
                 end
