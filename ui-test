@@ -53,7 +53,8 @@ local themes = {
     Background = Color3.fromRGB(36, 37, 43),
     Header = Color3.fromRGB(28, 29, 34),
     TextColor = Color3.fromRGB(255, 255, 255),
-    ElementColor = Color3.fromRGB(32, 32, 38)
+    ElementColor = Color3.fromRGB(32, 32, 38),
+    PlaceHolderColor = Color3.fromRGB(149, 130, 190)
 }
 local themeStyles = {
     DarkTheme = {
@@ -124,8 +125,8 @@ local themeStyles = {
         Background = Color3.fromRGB(2, 11, 27),
         Header = Color3.fromRGB(38, 31, 53),
         TextColor = Color3.fromRGB(235, 239, 245),
-        PlaceHolderColor = Color3.fromRGB(149, 130, 190),
-        ElementColor = Color3.fromRGB(38, 31, 53)
+        ElementColor = Color3.fromRGB(38, 31, 53),
+        PlaceHolderColor = Color3.fromRGB(149, 130, 190)
     }
 }
 local oldTheme = ""
@@ -347,6 +348,8 @@ function Kavo.CreateLib(kavName, themeList)
             themeList.Header = color
         elseif prope == "TextColor" then
             themeList.TextColor = color
+        elseif prope == "PlaceholderColor" then
+            themeList.PlaceholderColor = color
         elseif prope == "ElementColor" then
             themeList.ElementColor = color
         end
