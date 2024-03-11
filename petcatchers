@@ -1,12 +1,6 @@
---[[
-
-    Made by Av & Hari
-    Version: v2.2
-    Game Version: v1.1.7
-
-    Press M to toggle the UI
-    
---]] 
+-- Made by Av & Hari
+-- Version: v2.2
+-- Game Version: v1.1.7
 
 -- Encapsulated script variables
 local KrakenLevel
@@ -39,8 +33,8 @@ local function Script()
             StableGameVersion = "v1.1.7" -- Game Version
         },
         Level = {
-            KrakenLevel = 25, -- Kraken Level
-            SlimeLevel = 25 -- King Slime Level
+            KrakenLevel = "25", -- Kraken Level
+            SlimeLevel = "25" -- King Slime Level
         }
     }
 
@@ -76,25 +70,20 @@ local function Script()
         end
     end
 
-    local tickets = 0 -- Replace with value of tickets from game    
     -- Function to respawn the Kraken
     local function RespawnKraken()
         while not stopRespawnKrakenLoop do
-            if tickets == 0 then
-                if Settings.Toggles.RespawnKraken and Settings.Toggles.ScriptEnabled then
-                    local success, errorMessage = pcall(function()
-                        ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network")
-                            :WaitForChild("Remote"):WaitForChild("Event"):FireServer("RespawnBoss", "the-kraken")
-                        wait(Settings.Timers.RespawnCooldown)
-                    end)
-                    if not success then
-                        warn("Error while respawning Kraken:", errorMessage)
-                    end
+            if Settings.Toggles.RespawnKraken and Settings.Toggles.ScriptEnabled then
+                local success, errorMessage = pcall(function()
+                    ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network")
+                        :WaitForChild("Remote"):WaitForChild("Event"):FireServer("RespawnBoss", "the-kraken")
+                    wait(Settings.Timers.RespawnCooldown)
+                end)
+                if not success then
+                    warn("Error while respawning Kraken:", errorMessage)
                 end
             else
-                while tickets >= 9 do
-                    wait(1) -- Wait until tickets are back to 0
-                end
+                return
             end
             wait(0.1)
         end
@@ -107,7 +96,7 @@ local function Script()
                 local args = {
                     [1] = "BossRequest",
                     [2] = "the-kraken",
-                    [3] = Settings.Level.KrakenLevel
+                    [3] = tonumber(Settings.Level.KrakenLevel)
                 }
                 local success, error_message = pcall(function()
                     ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network")
@@ -119,6 +108,7 @@ local function Script()
             else
                 return
             end
+            wait(0.1)
         end
     end
 
@@ -137,6 +127,7 @@ local function Script()
             else
                 return
             end
+            wait(0.1)
         end
     end
 
@@ -147,7 +138,7 @@ local function Script()
                 local args = {
                     [1] = "BossRequest",
                     [2] = "king-slime",
-                    [3] = Settings.Level.SlimeLevel
+                    [3] = tonumber(Settings.Level.SlimeLevel)
                 }
                 local success, error_message = pcall(function()
                     ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network")
@@ -159,6 +150,7 @@ local function Script()
             else
                 return
             end
+            wait(0.1)
         end
     end
 
@@ -180,21 +172,21 @@ local function Script()
         while not stopUseAllShrinesLoop do
             if Settings.Toggles.UseAllShrines and Settings.Toggles.ScriptEnabled then
                 UseShrine("egg")
-                task.wait(0.25)
+                wait(0.25)
                 UseShrine("berry")
-                task.wait(0.25)
+                wait(0.25)
                 UseShrine("cherry")
-                task.wait(0.25)
+                wait(0.25)
                 UseShrine("radioactive")
-                task.wait(0.25)
+                wait(0.25)
                 UseShrine("gem")
-                task.wait(0.25)
+                wait(0.25)
                 UseShrine("rune")
-                task.wait(0.25)
+                wait(0.25)
                 UseShrine("ticket")
-                task.wait(0.25)
+                wait(0.25)
                 UseShrine("better-cube")
-                task.wait()
+                wait()
             else
                 return
             end
@@ -220,7 +212,7 @@ local function Script()
             if Settings.Toggles.BuyBlackMarket and Settings.Toggles.ScriptEnabled then
                 for i = 1, 3 do
                     BuyItem("the-blackmarket", i)
-                    task.wait()
+                    wait()
                 end
                 wait(Settings.Timers.BuyCooldown)
             else
@@ -235,7 +227,7 @@ local function Script()
             if Settings.Toggles.BuyMagicShop and Settings.Toggles.ScriptEnabled then
                 for i = 1, 3 do
                     BuyItem("magic-shop", i)
-                    task.wait()
+                    wait()
                 end
                 wait(Settings.Timers.BuyCooldown)
             else
@@ -250,7 +242,7 @@ local function Script()
             if Settings.Toggles.BuyGemTrader and Settings.Toggles.ScriptEnabled then
                 for i = 1, 3 do
                     BuyItem("gem-trader", i)
-                    task.wait()
+                    wait()
                 end
                 wait(Settings.Timers.BuyCooldown)
             else
@@ -265,7 +257,7 @@ local function Script()
             if Settings.Toggles.BuyAuburnShop and Settings.Toggles.ScriptEnabled then
                 for i = 1, 3 do
                     BuyItem("auburn-shop", i)
-                    task.wait()
+                    wait()
                 end
                 wait(Settings.Timers.BuyCooldown)
             else
@@ -392,7 +384,7 @@ local function Script()
     -- Creates the Kraken Level TextBox
     KrakenLevel = Kraken:NewTextBox("Kraken Level", "Enter the level of the Kraken",
         "Current Level: " .. Settings.Level.KrakenLevel, function(text)
-            Settings.Level.KrakenLevel = text
+            Settings.Level.KrakenLevel = tostring(text)
             KrakenLevel:UpdatePlaceholder("Current Level: " .. Settings.Level.KrakenLevel)
         end)
 
@@ -421,7 +413,7 @@ local function Script()
     -- Creates the Slime Level TextBox
     SlimeLevel = Slime:NewTextBox("Slime Level", "Enter the level of the King Slime",
         "Current Level: " .. Settings.Level.SlimeLevel, function(text)
-            Settings.Level.SlimeLevel = text
+            Settings.Level.SlimeLevel = tostring(text)
             SlimeLevel:UpdatePlaceholder("Current Level: " .. Settings.Level.SlimeLevel)
         end)
 
