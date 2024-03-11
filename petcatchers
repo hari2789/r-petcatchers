@@ -1,3 +1,7 @@
+-- Made by Av & Hari
+-- Version: v2.2
+-- Game Version: v1.1.7
+
 -- Encapsulated script variables
 local KrakenLevel
 local SlimeLevel
@@ -6,14 +10,6 @@ local SlimeLevel
 local function Script()
     -- Settings and default configurations
     local Settings = {
-        Information = {
-            ScriptVersion = "v2.3", -- Script Version
-            StableGameVersion = "v1.1.7", -- Game Version
-            Developers = "Av & Hari" -- Developers
-        },
-        Keybinds = {
-            ToggleUI = Enum.KeyCode.M -- Keybind to toggle the UI
-        },
         Toggles = {
             ScriptEnabled = true, -- Toggle for enabling/disabling the script
             RespawnKraken = false, -- Toggle for Kraken respawn
@@ -28,8 +24,13 @@ local function Script()
         },
         Timers = {
             RespawnCooldown = 5, -- Wait() time between Kraken respawns
+            ShrineDelay = 2, -- Delay between using each shrine
             BuyCooldown = 0.1, -- Cooldown period after buying all items
             NotificationDuration = 1 -- Duration of the notification
+        },
+        Versions = {
+            ScriptVersion = "v2.2", -- Script Version
+            StableGameVersion = "v1.1.7" -- Game Version
         },
         Level = {
             KrakenLevel = "25", -- Kraken Level
@@ -37,12 +38,8 @@ local function Script()
         }
     }
 
-    -- Services and objects
+    -- Services
     local ReplicatedStorage = game:GetService("ReplicatedStorage")
-    local Framework = ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework")
-    local Network = Framework:WaitForChild("Network")
-    local RemoteEvent = Network:WaitForChild("Remote"):WaitForChild("Event")
-    local RemoteFunction = Network:WaitForChild("Remote"):WaitForChild("Function")
 
     -- Flags to control the loops
     local stopRespawnKrakenLoop = false
@@ -78,7 +75,8 @@ local function Script()
         while not stopRespawnKrakenLoop do
             if Settings.Toggles.RespawnKraken and Settings.Toggles.ScriptEnabled then
                 local success, errorMessage = pcall(function()
-                    RemoteEvent:FireServer("RespawnBoss", "the-kraken")
+                    ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network")
+                        :WaitForChild("Remote"):WaitForChild("Event"):FireServer("RespawnBoss", "the-kraken")
                     wait(Settings.Timers.RespawnCooldown)
                 end)
                 if not success then
@@ -95,8 +93,14 @@ local function Script()
     local function StartKraken()
         while not stopStartKrakenLoop do
             if Settings.Toggles.StartKraken and Settings.Toggles.ScriptEnabled then
+                local args = {
+                    [1] = "BossRequest",
+                    [2] = "the-kraken",
+                    [3] = tonumber(Settings.Level.KrakenLevel)
+                }
                 local success, error_message = pcall(function()
-                    RemoteFunction:InvokeServer("BossRequest", "the-kraken", tonumber(Settings.Level.KrakenLevel))
+                    ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network")
+                        :WaitForChild("Remote"):WaitForChild("Function"):InvokeServer(unpack(args))
                 end)
                 if not success then
                     warn("Error while invoking server function:", error_message)
@@ -113,7 +117,8 @@ local function Script()
         while not stopRespawnSlimeLoop do
             if Settings.Toggles.RespawnSlime and Settings.Toggles.ScriptEnabled then
                 local success, errorMessage = pcall(function()
-                    RemoteEvent:FireServer("RespawnBoss", "king-slime")
+                    ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network")
+                        :WaitForChild("Remote"):WaitForChild("Event"):FireServer("RespawnBoss", "king-slime")
                     wait(Settings.Timers.RespawnCooldown)
                 end)
                 if not success then
@@ -130,8 +135,14 @@ local function Script()
     local function StartSlime()
         while not stopStartSlimeLoop do
             if Settings.Toggles.StartSlime and Settings.Toggles.ScriptEnabled then
+                local args = {
+                    [1] = "BossRequest",
+                    [2] = "king-slime",
+                    [3] = tonumber(Settings.Level.SlimeLevel)
+                }
                 local success, error_message = pcall(function()
-                    RemoteFunction:InvokeServer("BossRequest", "king-slime", tonumber(Settings.Level.SlimeLevel))
+                    ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network")
+                        :WaitForChild("Remote"):WaitForChild("Function"):InvokeServer(unpack(args))
                 end)
                 if not success then
                     warn("Error while invoking server function:", error_message)
@@ -143,38 +154,64 @@ local function Script()
         end
     end
 
+    -- Function to use a shrine
     local function UseShrine(shrine)
-        local success, result = pcall(RemoteEvent.FireServer, RemoteEvent, "UseShrine", shrine)
-        if not success then
-            warn("Failed to use shrine:", shrine)
+        local success, RemoteEvent = pcall(function()
+            return ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network")
+                :WaitForChild("Remote"):WaitForChild("Event")
+        end)
+        if success then
+            local result = RemoteEvent:FireServer("UseShrine", shrine)
+        else
+            warn("Failed shrine")
         end
     end
 
+    -- Function to automatically use all the shrines
     local function UseAllShrines()
-        local shrines = {"egg", "berry", "cherry", "radioactive", "gem", "rune", "ticket", "better-cube"}
-        while Settings.Toggles.ScriptEnabled and Settings.Toggles.UseAllShrines do
-            for _, shrine in ipairs(shrines) do
-                UseShrine(shrine)
-                wait(0.25) -- Adjust the delay as needed
+        while not stopUseAllShrinesLoop do
+            if Settings.Toggles.UseAllShrines and Settings.Toggles.ScriptEnabled then
+                UseShrine("egg")
+                wait(0.2)
+                UseShrine("berry")
+                wait(0.2)
+                UseShrine("cherry")
+                wait(0.2)
+                UseShrine("radioactive")
+                wait(0.2)
+                UseShrine("gem")
+                wait(0.2)
+                UseShrine("rune")
+                wait(0.2)
+                UseShrine("ticket")
+                wait(0.2)
+                UseShrine("better-cube")
+                wait()
+            else
+                return
             end
         end
     end
 
-    -- Function to buy an item from a shop
+    -- Function to buy an item from the Black Market
     local function BuyItem(shop, itemIndex)
-        local success, result = pcall(RemoteEvent.FireServer, RemoteEvent, "BuyShopItem", shop, itemIndex)
-        if not success then
-            warn("Failed to buy item from " .. shop .. ":", result)
+        local success, RemoteEvent = pcall(function()
+            return ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network")
+                :WaitForChild("Remote"):WaitForChild("Event")
+        end)
+        if success then
+            local result = RemoteEvent:FireServer("BuyShopItem", shop, itemIndex)
+        else
+            warn("Failed to find RemoteEvent for buying items from Black Market.")
         end
     end
 
-    -- Function to automatically buy items from a shop
-    local function BuyShop(shop)
-        local stopLoop = "stopBuy" .. shop .. "Loop"
-        while not _G[stopLoop] do
-            if Settings.Toggles["Buy" .. shop] and Settings.Toggles.ScriptEnabled then
+    -- Function to automatically buy items from the Black Market
+    local function BuyBlackMarket()
+        while not stopBuyBlackMarketLoop do
+            if Settings.Toggles.BuyBlackMarket and Settings.Toggles.ScriptEnabled then
                 for i = 1, 3 do
-                    BuyItem(shop, i)
+                    BuyItem("the-blackmarket", i)
                     wait()
                 end
                 wait(Settings.Timers.BuyCooldown)
@@ -184,25 +221,62 @@ local function Script()
         end
     end
 
-    -- Create functions for each shop
-    local shops = {"BlackMarket", "MagicShop", "GemTrader", "AuburnShop"}
-    for _, shop in ipairs(shops) do
-        _G["Buy" .. shop] = function()
-            BuyShop(string.lower(shop))
+    -- Function to automatically buy items from the Magic Shop
+    local function BuyMagicShop()
+        while not stopBuyMagicShopLoop do
+            if Settings.Toggles.BuyMagicShop and Settings.Toggles.ScriptEnabled then
+                for i = 1, 3 do
+                    BuyItem("magic-shop", i)
+                    wait()
+                end
+                wait(Settings.Timers.BuyCooldown)
+            else
+                return
+            end
+        end
+    end
+
+    -- Function to automatically buy items from the Gem Trader
+    local function BuyGemTrader()
+        while not stopBuyGemTraderLoop do
+            if Settings.Toggles.BuyGemTrader and Settings.Toggles.ScriptEnabled then
+                for i = 1, 3 do
+                    BuyItem("gem-trader", i)
+                    wait()
+                end
+                wait(Settings.Timers.BuyCooldown)
+            else
+                return
+            end
+        end
+    end
+
+    -- Function to automatically buy items from the Auburn Shop
+    local function BuyAuburnShop()
+        while not stopBuyAuburnShopLoop do
+            if Settings.Toggles.BuyAuburnShop and Settings.Toggles.ScriptEnabled then
+                for i = 1, 3 do
+                    BuyItem("auburn-shop", i)
+                    wait()
+                end
+                wait(Settings.Timers.BuyCooldown)
+            else
+                return
+            end
         end
     end
 
     -- Notify script loading and initial Settings
     warn("Made by Av & Hari")
-    warn("Loaded script Version " .. tostring(Settings.Information.ScriptVersion))
-    warn("Works on game Version " .. tostring(Settings.Information.StableGameVersion))
+    warn("Loaded script Version " .. tostring(Settings.Versions.ScriptVersion))
+    warn("Works on game Version " .. tostring(Settings.Versions.StableGameVersion))
 
     -- Gets the UI Library
     local Library = loadstring(game:HttpGet(
         "https://raw.githubusercontent.com/vyworn/r-petcatchers/main/kavo-ui-lib-modified.lua"))()
 
     -- Creates the window
-    local Window = Library.CreateLib("Pet Catchers Hub  " .. Settings.Information.ScriptVersion, "Ocean")
+    local Window = Library.CreateLib("Pet Catchers Hub  " .. Settings.Versions.ScriptVersion, "Ocean")
 
     -- Creates the Information tab
     local Information = Window:NewTab("Information")
@@ -217,36 +291,64 @@ local function Script()
     local Keybinds = Window:NewTab("Keybinds")
 
     -- Creates the Developers Section
-    Information:NewSection("Made by: " .. Settings.Information.Developers)
+    Information:NewSection("Made by: Av & Hari")
 
     -- Creates the Script Version Section
-    Information:NewSection("Script Version: " .. Settings.Information.ScriptVersion)
+    Information:NewSection("Script Version: " .. Settings.Versions.ScriptVersion)
 
     -- Creates the Game Version Section
-    Information:NewSection("Game Version: " .. Settings.Information.StableGameVersion)
+    Information:NewSection("Game Version: " .. Settings.Versions.StableGameVersion)
 
     -- Creates the Keybind Section
     local Keybinds = Keybinds:NewSection("Keybinds")
 
     -- Creates the keybind to toggle the UI
-    Keybinds:NewKeybind("Select Keybind to toggle the UI", "Hides/shows the UI", Settings.Keybinds.ToggleUI, function()
+    Keybinds:NewKeybind("Select Keybind to toggle the UI", "Hides/shows the UI", Enum.KeyCode.M, function()
         Library:ToggleUI()
     end)
 
-    -- Creates the Auto Buy Shops Section
+    -- Creates the Black Market Section
     local AutoBuyShops = AutoUse:NewSection("Auto Buy Shops")
-    for _, shop in ipairs(shops) do
-        local UIShopToggle = AutoBuyShops:NewToggle("Auto Buy " .. shop,
-            "Toggles " .. string.lower(shop) .. " auto buy", function(state)
-                Settings.Toggles["Buy" .. shop] = state
-                _G["stopBuy" .. shop .. "Loop"] = not state
-                if state then
-                    coroutine.wrap(_G["Buy" .. shop])()
-                end
-            end)
-    end
+    local UIBlackMarketToggle = AutoBuyShops:NewToggle("Auto Buy Black Market", "Toggles black market auto buy",
+        function(state)
+            Settings.Toggles.BuyBlackMarket = state
+            stopBuyBlackMarketLoop = not state
+            if state then
+                coroutine.wrap(BuyBlackMarket)()
+            end
+        end)
 
-    -- Creates the Use All Shrines Toggle
+    -- Creates the Magic Shop Section
+    local UIMagicShopToggle = AutoBuyShops:NewToggle("Auto Buy Magic Shop", "Toggles magic shop auto buy",
+        function(state)
+            Settings.Toggles.BuyMagicShop = state
+            stopBuyMagicShopLoop = not state
+            if state then
+                coroutine.wrap(BuyMagicShop)()
+            end
+        end)
+
+    -- Creates the Gem Trader Section
+    local UIGemTraderToggle = AutoBuyShops:NewToggle("Auto Buy Gem Trader", "Toggles gem trader auto buy",
+        function(state)
+            Settings.Toggles.BuyGemTrader = state
+            stopBuyGemTraderLoop = not state
+            if state then
+                coroutine.wrap(BuyGemTrader)()
+            end
+        end)
+
+    -- Creates the Auburn Shop Section
+    local UIAuburnShopToggle = AutoBuyShops:NewToggle("Auto Buy Auburn Shop", "Toggles auburn shop auto buy",
+        function(state)
+            Settings.Toggles.BuyAuburnShop = state
+            stopBuyAuburnShopLoop = not state
+            if state then
+                coroutine.wrap(BuyAuburnShop)()
+            end
+        end)
+
+    -- Creates the Use All Shrines Section
     local UseAllShrinesSection = AutoUse:NewSection("Shrines")
     local UIUseAllShrinesToggle = UseAllShrinesSection:NewToggle("Use All Shrines",
         "Toggles the state of the Use All Shrines", function(state)
@@ -260,7 +362,7 @@ local function Script()
     -- Creates the Kraken Section
     local Kraken = Bosses:NewSection("Kraken")
 
-    -- Creates the Respawn Kraken Toggle
+    -- Creates the Respawn Kraken Section
     local UIRespawnKrakenToggle = Kraken:NewToggle("Respawn Kraken", "Toggles the state of the Respawn Kraken",
         function(state)
             Settings.Toggles.RespawnKraken = state
