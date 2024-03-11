@@ -799,6 +799,7 @@ function Kavo.CreateLib(kavName, themeList)
                 tTip = tTip or "Gets a value of Textbox"
                 callback = callback or function()
                 end
+                local textboxfunctions = {}
                 local textboxElement = Instance.new("TextButton")
                 local UICorner = Instance.new("UICorner")
                 local viewInfo = Instance.new("ImageButton")
@@ -911,6 +912,12 @@ function Kavo.CreateLib(kavName, themeList)
 
                 updateSectionFrame()
                 UpdateSize()
+
+                function textboxfunctions:UpdateText(newText)
+                  if TextBox.PlaceholderText ~= "  " .. newText then
+                    TextBox.PlaceholderText = "  " .. newText
+                  end
+                end
 
                 local btn = textboxElement
                 local infBtn = viewInfo
