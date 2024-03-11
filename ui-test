@@ -53,10 +53,81 @@ local themes = {
     Background = Color3.fromRGB(36, 37, 43),
     Header = Color3.fromRGB(28, 29, 34),
     TextColor = Color3.fromRGB(255, 255, 255),
-    ElementColor = Color3.fromRGB(32, 32, 38),
-    PlaceHolderColor = Color3.fromRGB(149, 130, 190)
+    ElementColor = Color3.fromRGB(32, 32, 38)
 }
-
+local themeStyles = {
+    DarkTheme = {
+        SchemeColor = Color3.fromRGB(64, 64, 64),
+        Background = Color3.fromRGB(0, 0, 0),
+        Header = Color3.fromRGB(0, 0, 0),
+        TextColor = Color3.fromRGB(255, 255, 255),
+        ElementColor = Color3.fromRGB(20, 20, 20)
+    },
+    LightTheme = {
+        SchemeColor = Color3.fromRGB(150, 150, 150),
+        Background = Color3.fromRGB(255, 255, 255),
+        Header = Color3.fromRGB(200, 200, 200),
+        TextColor = Color3.fromRGB(0, 0, 0),
+        ElementColor = Color3.fromRGB(224, 224, 224)
+    },
+    BloodTheme = {
+        SchemeColor = Color3.fromRGB(227, 27, 27),
+        Background = Color3.fromRGB(10, 10, 10),
+        Header = Color3.fromRGB(5, 5, 5),
+        TextColor = Color3.fromRGB(255, 255, 255),
+        ElementColor = Color3.fromRGB(20, 20, 20)
+    },
+    GrapeTheme = {
+        SchemeColor = Color3.fromRGB(166, 71, 214),
+        Background = Color3.fromRGB(64, 50, 71),
+        Header = Color3.fromRGB(36, 28, 41),
+        TextColor = Color3.fromRGB(255, 255, 255),
+        ElementColor = Color3.fromRGB(74, 58, 84)
+    },
+    Ocean = {
+        SchemeColor = Color3.fromRGB(86, 76, 251),
+        Background = Color3.fromRGB(26, 32, 58),
+        Header = Color3.fromRGB(38, 45, 71),
+        TextColor = Color3.fromRGB(200, 200, 200),
+        ElementColor = Color3.fromRGB(38, 45, 71)
+    },
+    Midnight = {
+        SchemeColor = Color3.fromRGB(26, 189, 158),
+        Background = Color3.fromRGB(44, 62, 82),
+        Header = Color3.fromRGB(57, 81, 105),
+        TextColor = Color3.fromRGB(255, 255, 255),
+        ElementColor = Color3.fromRGB(52, 74, 95)
+    },
+    Sentinel = {
+        SchemeColor = Color3.fromRGB(230, 35, 69),
+        Background = Color3.fromRGB(32, 32, 32),
+        Header = Color3.fromRGB(24, 24, 24),
+        TextColor = Color3.fromRGB(119, 209, 138),
+        ElementColor = Color3.fromRGB(24, 24, 24)
+    },
+    Synapse = {
+        SchemeColor = Color3.fromRGB(46, 48, 43),
+        Background = Color3.fromRGB(13, 15, 12),
+        Header = Color3.fromRGB(36, 38, 35),
+        TextColor = Color3.fromRGB(152, 99, 53),
+        ElementColor = Color3.fromRGB(24, 24, 24)
+    },
+    Serpent = {
+        SchemeColor = Color3.fromRGB(0, 166, 58),
+        Background = Color3.fromRGB(31, 41, 43),
+        Header = Color3.fromRGB(22, 29, 31),
+        TextColor = Color3.fromRGB(255, 255, 255),
+        ElementColor = Color3.fromRGB(22, 29, 31)
+    },
+    Av = {
+        SchemeColor = Color3.fromRGB(74, 99, 135),
+        Background = Color3.fromRGB(36, 37, 43),
+        Header = Color3.fromRGB(28, 29, 34),
+        TextColor = Color3.fromRGB(255, 255, 255),
+        ElementColor = Color3.fromRGB(32, 32, 38),
+        -- PlaceHolderColor = Color3.fromRGB(149, 130, 190)
+    }
+}
 local oldTheme = ""
 
 local SettingsT = {}
@@ -85,7 +156,40 @@ function Kavo:ToggleUI()
 end
 
 function Kavo.CreateLib(kavName, themeList)
-    themeList = themes
+    if not themeList then
+        themeList = themes
+    end
+    if themeList == "DarkTheme" then
+        themeList = themeStyles.DarkTheme
+    elseif themeList == "LightTheme" then
+        themeList = themeStyles.LightTheme
+    elseif themeList == "BloodTheme" then
+        themeList = themeStyles.BloodTheme
+    elseif themeList == "GrapeTheme" then
+        themeList = themeStyles.GrapeTheme
+    elseif themeList == "Ocean" then
+        themeList = themeStyles.Ocean
+    elseif themeList == "Midnight" then
+        themeList = themeStyles.Midnight
+    elseif themeList == "Sentinel" then
+        themeList = themeStyles.Sentinel
+    elseif themeList == "Synapse" then
+        themeList = themeStyles.Synapse
+    elseif themeList == "Serpent" then
+        themeList = themeStyles.Serpent
+    else
+        if themeList.SchemeColor == nil then
+            themeList.SchemeColor = Color3.fromRGB(74, 99, 135)
+        elseif themeList.Background == nil then
+            themeList.Background = Color3.fromRGB(36, 37, 43)
+        elseif themeList.Header == nil then
+            themeList.Header = Color3.fromRGB(28, 29, 34)
+        elseif themeList.TextColor == nil then
+            themeList.TextColor = Color3.fromRGB(255, 255, 255)
+        elseif themeList.ElementColor == nil then
+            themeList.ElementColor = Color3.fromRGB(32, 32, 38)
+        end
+    end
 
     themeList = themeList or {}
     local selectedTab
@@ -701,8 +805,8 @@ function Kavo.CreateLib(kavName, themeList)
             function Elements:NewTextBox(tname, tTip, tplaceholder, callback)
                 tname = tname or "Textbox"
                 tTip = tTip or "Gets a value of Textbox"
-                callback = callback or function()
-                end
+                callback = callback or function() end
+            
                 local textboxfunctions = {}
                 local textboxElement = Instance.new("TextButton")
                 local UICorner = Instance.new("UICorner")
@@ -711,7 +815,7 @@ function Kavo.CreateLib(kavName, themeList)
                 local TextBox = Instance.new("TextBox")
                 local UICorner_2 = Instance.new("UICorner")
                 local togName = Instance.new("TextLabel")
-
+            
                 textboxElement.Name = "textboxElement"
                 textboxElement.Parent = sectionInners
                 textboxElement.BackgroundColor3 = themeList.ElementColor
@@ -722,10 +826,10 @@ function Kavo.CreateLib(kavName, themeList)
                 textboxElement.Text = ""
                 textboxElement.TextColor3 = Color3.fromRGB(0, 0, 0)
                 textboxElement.TextSize = 14.000
-
+            
                 UICorner.CornerRadius = UDim.new(0, 4)
                 UICorner.Parent = textboxElement
-
+            
                 viewInfo.Name = "viewInfo"
                 viewInfo.Parent = textboxElement
                 viewInfo.BackgroundTransparency = 1.000
@@ -737,7 +841,7 @@ function Kavo.CreateLib(kavName, themeList)
                 viewInfo.ImageColor3 = themeList.SchemeColor
                 viewInfo.ImageRectOffset = Vector2.new(764, 764)
                 viewInfo.ImageRectSize = Vector2.new(36, 36)
-
+            
                 write.Name = "write"
                 write.Parent = textboxElement
                 write.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -749,7 +853,7 @@ function Kavo.CreateLib(kavName, themeList)
                 write.ImageColor3 = themeList.SchemeColor
                 write.ImageRectOffset = Vector2.new(324, 604)
                 write.ImageRectSize = Vector2.new(36, 36)
-
+            
                 TextBox.Parent = textboxElement
                 TextBox.BackgroundColor3 = Color3.fromRGB(themeList.ElementColor.r * 255 - 6,
                     themeList.ElementColor.g * 255 - 6, themeList.ElementColor.b * 255 - 7)
@@ -760,15 +864,14 @@ function Kavo.CreateLib(kavName, themeList)
                 TextBox.ZIndex = 99
                 TextBox.ClearTextOnFocus = false
                 TextBox.Font = Enum.Font.Gotham
-                TextBox.PlaceholderColor3 = themeList.PlaceholderColor
                 TextBox.PlaceholderText = tplaceholder
                 TextBox.Text = ""
                 TextBox.TextColor3 = themeList.SchemeColor
                 TextBox.TextSize = 12.000
-
+            
                 UICorner_2.CornerRadius = UDim.new(0, 4)
                 UICorner_2.Parent = TextBox
-
+            
                 togName.Name = "togName"
                 togName.Parent = textboxElement
                 togName.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -781,10 +884,10 @@ function Kavo.CreateLib(kavName, themeList)
                 togName.TextColor3 = themeList.TextColor
                 togName.TextSize = 14.000
                 togName.TextXAlignment = Enum.TextXAlignment.Left
-
+            
                 local moreInfo = Instance.new("TextLabel")
                 local UICorner = Instance.new("UICorner")
-
+            
                 moreInfo.Name = "TipMore"
                 moreInfo.Parent = infoContainer
                 moreInfo.BackgroundColor3 = Color3.fromRGB(themeList.SchemeColor.r * 255 - 14,
@@ -798,7 +901,7 @@ function Kavo.CreateLib(kavName, themeList)
                 moreInfo.TextColor3 = Color3.fromRGB(255, 255, 255)
                 moreInfo.TextSize = 14.000
                 moreInfo.TextXAlignment = Enum.TextXAlignment.Left
-
+            
                 if themeList.SchemeColor == Color3.fromRGB(255, 255, 255) then
                     Utility:TweenObject(moreInfo, {
                         TextColor3 = Color3.fromRGB(0, 0, 0)
@@ -809,22 +912,22 @@ function Kavo.CreateLib(kavName, themeList)
                         TextColor3 = Color3.fromRGB(255, 255, 255)
                     }, 0.2)
                 end
-
+            
                 UICorner.CornerRadius = UDim.new(0, 4)
                 UICorner.Parent = moreInfo
-
+            
                 updateSectionFrame()
                 UpdateSize()
-
+            
                 function textboxfunctions:UpdatePlaceholder(newText)
                     if TextBox.PlaceholderText ~= "  " .. newText then
                         TextBox.PlaceholderText = "  " .. newText
                     end
                 end
-
+            
                 local btn = textboxElement
                 local infBtn = viewInfo
-
+            
                 btn.MouseButton1Click:Connect(function()
                     if focusing then
                         for i, v in next, infoContainer:GetChildren() do
@@ -849,7 +952,7 @@ function Kavo.CreateLib(kavName, themeList)
                         hovering = true
                     end
                 end)
-
+            
                 btn.MouseLeave:Connect(function()
                     if not focusing then
                         game.TweenService:Create(btn,
@@ -859,7 +962,7 @@ function Kavo.CreateLib(kavName, themeList)
                         hovering = false
                     end
                 end)
-
+            
                 TextBox.FocusLost:Connect(function(EnterPressed)
                     if focusing then
                         for i, v in next, infoContainer:GetChildren() do
@@ -880,7 +983,7 @@ function Kavo.CreateLib(kavName, themeList)
                         TextBox.Text = ""
                     end
                 end)
-
+            
                 viewInfo.MouseButton1Click:Connect(function()
                     if not viewDe then
                         viewDe = true
@@ -926,12 +1029,20 @@ function Kavo.CreateLib(kavName, themeList)
                         moreInfo.TextColor3 = themeList.TextColor
                         write.ImageColor3 = themeList.SchemeColor
                         togName.TextColor3 = themeList.TextColor
-                        TextBox.PlaceholderColor3 = themeList.PlaceholderColor
+            
+                        -- Set PlaceholderColor3 based on the selected theme
+                        if tname == "Av" and themeList.PlaceholderColor then
+                            TextBox.PlaceholderColor3 = themeList.PlaceholderColor
+                        else
+                            TextBox.PlaceholderColor3 = Color3.fromRGB(themeList.SchemeColor.r * 255 - 19,
+                                themeList.SchemeColor.g * 255 - 26, themeList.SchemeColor.b * 255 - 35)
+                        end
+            
                         TextBox.TextColor3 = themeList.SchemeColor
                     end
                 end)()
                 return textboxfunctions
-            end
+            end            
 
             function Elements:NewToggle(tname, nTip, callback)
                 local TogFunction = {}
