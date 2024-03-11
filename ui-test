@@ -49,11 +49,12 @@ function Utility:TweenObject(obj, properties, duration, ...)
 end
 
 local themes = {
-    SchemeColor = Color3.fromRGB(74, 99, 135),
-    Background = Color3.fromRGB(36, 37, 43),
-    Header = Color3.fromRGB(28, 29, 34),
-    TextColor = Color3.fromRGB(255, 255, 255),
-    ElementColor = Color3.fromRGB(32, 32, 38)
+    SchemeColor = Color3.fromRGB(75, 58, 113),
+    Background = Color3.fromRGB(2, 11, 27),
+    Header = Color3.fromRGB(38, 31, 53),
+    TextColor = Color3.fromRGB(235, 239, 245),
+    ElementColor = Color3.fromRGB(38, 31, 53),
+    PlaceHolderColor = Color3.fromRGB(149, 130, 190)
 }
 local themeStyles = {
     DarkTheme = {
@@ -61,63 +62,72 @@ local themeStyles = {
         Background = Color3.fromRGB(0, 0, 0),
         Header = Color3.fromRGB(0, 0, 0),
         TextColor = Color3.fromRGB(255, 255, 255),
-        ElementColor = Color3.fromRGB(20, 20, 20)
+        ElementColor = Color3.fromRGB(20, 20, 20),
+        PlaceHolderColor = Color3.fromRGB(235, 239, 245)
     },
     LightTheme = {
         SchemeColor = Color3.fromRGB(150, 150, 150),
         Background = Color3.fromRGB(255, 255, 255),
         Header = Color3.fromRGB(200, 200, 200),
         TextColor = Color3.fromRGB(0, 0, 0),
-        ElementColor = Color3.fromRGB(224, 224, 224)
+        ElementColor = Color3.fromRGB(224, 224, 224),
+        PlaceHolderColor = Color3.fromRGB(235, 239, 245)
     },
     BloodTheme = {
         SchemeColor = Color3.fromRGB(227, 27, 27),
         Background = Color3.fromRGB(10, 10, 10),
         Header = Color3.fromRGB(5, 5, 5),
         TextColor = Color3.fromRGB(255, 255, 255),
-        ElementColor = Color3.fromRGB(20, 20, 20)
+        ElementColor = Color3.fromRGB(20, 20, 20),
+        PlaceHolderColor = Color3.fromRGB(235, 239, 245)
     },
     GrapeTheme = {
         SchemeColor = Color3.fromRGB(166, 71, 214),
         Background = Color3.fromRGB(64, 50, 71),
         Header = Color3.fromRGB(36, 28, 41),
         TextColor = Color3.fromRGB(255, 255, 255),
-        ElementColor = Color3.fromRGB(74, 58, 84)
+        ElementColor = Color3.fromRGB(74, 58, 84),
+        PlaceHolderColor = Color3.fromRGB(235, 239, 245)
     },
     Ocean = {
         SchemeColor = Color3.fromRGB(86, 76, 251),
         Background = Color3.fromRGB(26, 32, 58),
         Header = Color3.fromRGB(38, 45, 71),
         TextColor = Color3.fromRGB(200, 200, 200),
-        ElementColor = Color3.fromRGB(38, 45, 71)
+        ElementColor = Color3.fromRGB(38, 45, 71),
+        PlaceHolderColor = Color3.fromRGB(235, 239, 245)
     },
     Midnight = {
         SchemeColor = Color3.fromRGB(26, 189, 158),
         Background = Color3.fromRGB(44, 62, 82),
         Header = Color3.fromRGB(57, 81, 105),
         TextColor = Color3.fromRGB(255, 255, 255),
-        ElementColor = Color3.fromRGB(52, 74, 95)
+        ElementColor = Color3.fromRGB(52, 74, 95),
+        PlaceHolderColor = Color3.fromRGB(235, 239, 245)
     },
     Sentinel = {
         SchemeColor = Color3.fromRGB(230, 35, 69),
         Background = Color3.fromRGB(32, 32, 32),
         Header = Color3.fromRGB(24, 24, 24),
         TextColor = Color3.fromRGB(119, 209, 138),
-        ElementColor = Color3.fromRGB(24, 24, 24)
+        ElementColor = Color3.fromRGB(24, 24, 24),
+        PlaceHolderColor = Color3.fromRGB(235, 239, 245)
     },
     Synapse = {
         SchemeColor = Color3.fromRGB(46, 48, 43),
         Background = Color3.fromRGB(13, 15, 12),
         Header = Color3.fromRGB(36, 38, 35),
         TextColor = Color3.fromRGB(152, 99, 53),
-        ElementColor = Color3.fromRGB(24, 24, 24)
+        ElementColor = Color3.fromRGB(24, 24, 24),
+        PlaceHolderColor = Color3.fromRGB(235, 239, 245)
     },
     Serpent = {
         SchemeColor = Color3.fromRGB(0, 166, 58),
         Background = Color3.fromRGB(31, 41, 43),
         Header = Color3.fromRGB(22, 29, 31),
         TextColor = Color3.fromRGB(255, 255, 255),
-        ElementColor = Color3.fromRGB(22, 29, 31)
+        ElementColor = Color3.fromRGB(22, 29, 31),
+        PlaceHolderColor = Color3.fromRGB(235, 239, 245)
     }
 }
 local oldTheme = ""
@@ -856,7 +866,7 @@ function Kavo.CreateLib(kavName, themeList)
                 TextBox.ZIndex = 99
                 TextBox.ClearTextOnFocus = false
                 TextBox.Font = Enum.Font.Gotham
-                TextBox.PlaceholderColor3 = Color3.fromRGB(149, 130, 190)
+                TextBox.PlaceholderColor3 = themeList.PlaceholderColor
                 TextBox.PlaceholderText = tplaceholder
                 TextBox.Text = ""
                 TextBox.TextColor3 = themeList.SchemeColor
