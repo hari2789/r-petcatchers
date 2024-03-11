@@ -1,17 +1,25 @@
 --[[
 
     Made by Av & Hari
-    Version: v2.1
+    Version: v2.2
     Game Version: v1.1.7
 
     Press M to toggle the UI
+    
+--]] 
 
-]] local function Script()
+-- Encapsulated script variables
+local KrakenLevel
+local SlimeLevel
+
+-- Encapsulated script function
+local function Script()
     -- Settings and default configurations
     local Settings = {
         Toggles = {
             ScriptEnabled = true, -- Toggle for enabling/disabling the script
             RespawnKraken = false, -- Toggle for Kraken respawn
+            RespawnSlime = false, -- Toggle for Slime respawn
             StartKraken = false, -- Toggle for starting Kraken fight
             StartSlime = false, -- Toggle for starting Slime fight
             BuyBlackMarket = false, -- Toggle for Black Market auto buy
@@ -27,12 +35,12 @@
             NotificationDuration = 1 -- Duration of the notification
         },
         Versions = {
-            ScriptVersion = "v2.1", -- Script Version
+            ScriptVersion = "v2.2", -- Script Version
             StableGameVersion = "v1.1.7" -- Game Version
         },
         Level = {
             KrakenLevel = 25, -- Kraken Level
-            SlimeLevel =25 -- King Slime Level
+            SlimeLevel = 25 -- King Slime Level
         }
     }
 
@@ -41,6 +49,7 @@
 
     -- Flags to control the loops
     local stopRespawnKrakenLoop = false
+    local stopRespawnSlimeLoop = false
     local stopStartKrakenLoop = false
     local stopStartSlimeLoop = false
     local stopBuyBlackMarketLoop = false
@@ -101,11 +110,29 @@
                     [3] = Settings.Level.KrakenLevel
                 }
                 local success, error_message = pcall(function()
-                    ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild(
-                        "Network"):WaitForChild("Remote"):WaitForChild("Function"):InvokeServer(unpack(args))
+                    ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network")
+                        :WaitForChild("Remote"):WaitForChild("Function"):InvokeServer(unpack(args))
                 end)
                 if not success then
                     warn("Error while invoking server function:", error_message)
+                end
+            else
+                return
+            end
+        end
+    end
+
+    -- Function to respawn the Slime
+    local function RespawnSlime()
+        while not stopRespawnSlimeLoop do
+            if Settings.Toggles.RespawnSlime and Settings.Toggles.ScriptEnabled then
+                local success, errorMessage = pcall(function()
+                    ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network")
+                        :WaitForChild("Remote"):WaitForChild("Event"):FireServer("RespawnBoss", "king-slime")
+                    wait(Settings.Timers.RespawnCooldown)
+                end)
+                if not success then
+                    warn("Error while respawning Slime:", errorMessage)
                 end
             else
                 return
@@ -123,8 +150,8 @@
                     [3] = Settings.Level.SlimeLevel
                 }
                 local success, error_message = pcall(function()
-                    ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild(
-                        "Network"):WaitForChild("Remote"):WaitForChild("Function"):InvokeServer(unpack(args))
+                    ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network")
+                        :WaitForChild("Remote"):WaitForChild("Function"):InvokeServer(unpack(args))
                 end)
                 if not success then
                     warn("Error while invoking server function:", error_message)
@@ -251,22 +278,16 @@
     warn("Made by Av & Hari")
     warn("Loaded script Version " .. tostring(Settings.Versions.ScriptVersion))
     warn("Works on game Version " .. tostring(Settings.Versions.StableGameVersion))
-    ConsoleNotification("Kraken Auto Respawn", "Default: " .. tostring(Settings.Toggles.RespawnKraken))
-    ConsoleNotification("Black Market Auto Buy", "Default: " .. tostring(Settings.Toggles.BuyBlackMarket))
-    ConsoleNotification("Script Enabled", "Default: " .. tostring(Settings.Toggles.ScriptEnabled))
-    ActivityNotification("Script Enabled", "Script is enabled.")
-
-    -- UI LIBRARY
 
     -- Gets the UI Library
-    local Library =
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/vyworn/r-petcatchers/main/kavo-ui-lib-modified.lua"))()
+    local Library = loadstring(game:HttpGet(
+        "https://raw.githubusercontent.com/vyworn/r-petcatchers/main/kavo-ui-lib-modified.lua"))()
 
     -- Creates the window
-    local Window = Library.CreateLib("by Av / Hari \t\t\t\t\t\t Pet Catchers", "Ocean")
+    local Window = Library.CreateLib("Pet Catchers Hub  " .. Settings.Versions.ScriptVersion, "Ocean")
 
-    -- Creates the Main tab
-    local Main = Window:NewTab("Main")
+    -- Creates the Information tab
+    local Information = Window:NewTab("Information")
 
     -- Creates the AutoUse Tab
     local AutoUse = Window:NewTab("Auto")
@@ -274,9 +295,23 @@
     -- Creates the Bosses Tab
     local Bosses = Window:NewTab("Bosses")
 
-    -- UI Toggle
-    local UiToggle = Main:NewSection("Keybind")
-    UiToggle:NewKeybind("Select Keybind to toggle the UI", "Hides/shows the UI", Enum.KeyCode.M, function()
+    -- Creates the Keybinds Tab
+    local Keybinds = Window:NewTab("Keybinds")
+
+    -- Creates the Developers Section
+    Information:NewSection("Made by: Av & Hari")
+
+    -- Creates the Script Version Section
+    Information:NewSection("Script Version: " .. Settings.Versions.ScriptVersion)
+
+    -- Creates the Game Version Section
+    Information:NewSection("Game Version: " .. Settings.Versions.StableGameVersion)
+
+    -- Creates the Keybind Section
+    local Keybinds = Keybinds:NewSection("Keybinds")
+
+    -- Creates the keybind to toggle the UI
+    Keybinds:NewKeybind("Select Keybind to toggle the UI", "Hides/shows the UI", Enum.KeyCode.M, function()
         Library:ToggleUI()
     end)
 
@@ -332,8 +367,10 @@
             end
         end)
 
-    -- Creates the Respawn Kraken Section
+    -- Creates the Kraken Section
     local Kraken = Bosses:NewSection("Kraken")
+
+    -- Creates the Respawn Kraken Section
     local UIRespawnKrakenToggle = Kraken:NewToggle("Respawn Kraken", "Toggles the state of the Respawn Kraken",
         function(state)
             Settings.Toggles.RespawnKraken = state
@@ -352,17 +389,25 @@
         end
     end)
 
-    -- Creates the Label for Kraken Level
-    local KrakenLevelLabel = Kraken:NewLabel("Default Kraken Level: 25")
-
-    -- Creates the Kraken Level TextBox    
-    local KrakenLevel = Kraken:NewTextBox("Default Kraken Level: 25", "Enter the level of the Kraken", "Current Level: " .. Settings.Level.KrakenLevel, function(text)
-        Settings.Level.KrakenLevel = text
-        KrakenLevelLabel:Update("Current Kraken Level: Level " .. Settings.Level.KrakenLevel)
-    end)
+    -- Creates the Kraken Level TextBox
+    KrakenLevel = Kraken:NewTextBox("Kraken Level", "Enter the level of the Kraken",
+        "Current Level: " .. Settings.Level.KrakenLevel, function(text)
+            Settings.Level.KrakenLevel = text
+            KrakenLevel:UpdatePlaceholder("Current Level: " .. Settings.Level.KrakenLevel)
+        end)
 
     -- Creates the King Slime Section
     local Slime = Bosses:NewSection("King Slime")
+
+    -- Creates the Respawn Slime Toggle
+    local UIRespawnSlimeToggle = Slime:NewToggle("Respawn Slime", "Toggles the state of the Respawn Slime",
+        function(state)
+            Settings.Toggles.RespawnSlime = state
+            stopRespawnSlimeLoop = not state
+            if state then
+                coroutine.wrap(RespawnSlime)()
+            end
+        end)
 
     -- Creates the StartSlimeFight Toggle
     local UIStartSlimeToggle = Slime:NewToggle("Start Slime Fight", "Starts the Slime fight", function(state)
@@ -374,9 +419,11 @@
     end)
 
     -- Creates the Slime Level TextBox
-    local SlimeLevel = Slime:NewTextBox("Slime Level", "Enter the level of the King Slime", function(text)
-        Settings.Level.SlimeLevel = text
-    end)
+    SlimeLevel = Slime:NewTextBox("Slime Level", "Enter the level of the King Slime",
+        "Current Level: " .. Settings.Level.SlimeLevel, function(text)
+            Settings.Level.SlimeLevel = text
+            SlimeLevel:UpdatePlaceholder("Current Level: " .. Settings.Level.SlimeLevel)
+        end)
 
     -- End of Script.
 end
