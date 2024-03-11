@@ -35,8 +35,12 @@ local function Script()
         }
     }
 
-    -- Services
+    -- Services and objects
     local ReplicatedStorage = game:GetService("ReplicatedStorage")
+    local Framework = ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework")
+    local Network = Framework:WaitForChild("Network")
+    local RemoteEvent = Network:WaitForChild("Remote"):WaitForChild("Event")
+    local RemoteFunction = Network:WaitForChild("Remote"):WaitForChild("Function")
 
     -- Flags to control the loops
     local stopRespawnKrakenLoop = false
@@ -72,9 +76,7 @@ local function Script()
         while not stopRespawnKrakenLoop do
             if Settings.Toggles.RespawnKraken and Settings.Toggles.ScriptEnabled then
                 local success, errorMessage = pcall(function()
-
-                    ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network")
-                        :WaitForChild("Remote"):WaitForChild("Event"):FireServer("RespawnBoss", "the-kraken")
+                    RemoteEvent:FireServer("RespawnBoss", "the-kraken")
                     wait(Settings.Timers.RespawnCooldown)
                 end)
                 if not success then
@@ -91,14 +93,8 @@ local function Script()
     local function StartKraken()
         while not stopStartKrakenLoop do
             if Settings.Toggles.StartKraken and Settings.Toggles.ScriptEnabled then
-                local args = {
-                    [1] = "BossRequest",
-                    [2] = "the-kraken",
-                    [3] = tonumber(Settings.Level.KrakenLevel)
-                }
                 local success, error_message = pcall(function()
-                    ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network")
-                        :WaitForChild("Remote"):WaitForChild("Function"):InvokeServer(unpack(args))
+                    RemoteFunction:InvokeServer("BossRequest", "the-kraken", tonumber(Settings.Level.KrakenLevel))
                 end)
                 if not success then
                     warn("Error while invoking server function:", error_message)
@@ -115,8 +111,7 @@ local function Script()
         while not stopRespawnSlimeLoop do
             if Settings.Toggles.RespawnSlime and Settings.Toggles.ScriptEnabled then
                 local success, errorMessage = pcall(function()
-                    ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network")
-                        :WaitForChild("Remote"):WaitForChild("Event"):FireServer("RespawnBoss", "king-slime")
+                    RemoteEvent:FireServer("RespawnBoss", "king-slime")
                     wait(Settings.Timers.RespawnCooldown)
                 end)
                 if not success then
@@ -133,14 +128,8 @@ local function Script()
     local function StartSlime()
         while not stopStartSlimeLoop do
             if Settings.Toggles.StartSlime and Settings.Toggles.ScriptEnabled then
-                local args = {
-                    [1] = "BossRequest",
-                    [2] = "king-slime",
-                    [3] = tonumber(Settings.Level.SlimeLevel)
-                }
                 local success, error_message = pcall(function()
-                    ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network")
-                        :WaitForChild("Remote"):WaitForChild("Function"):InvokeServer(unpack(args))
+                    RemoteFunction:InvokeServer("BossRequest", "king-slime", tonumber(Settings.Level.SlimeLevel))
                 end)
                 if not success then
                     warn("Error while invoking server function:", error_message)
@@ -152,16 +141,10 @@ local function Script()
         end
     end
 
-    -- Function to use a shrine
     local function UseShrine(shrine)
-        local success, RemoteEvent = pcall(function()
-            return ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network")
-                :WaitForChild("Remote"):WaitForChild("Event")
-        end)
-        if success then
-            local result = RemoteEvent:FireServer("UseShrine", shrine)
-        else
-            warn("Failed shrine")
+        local success, result = pcall(RemoteEvent:FireServer("UseShrine", shrine))
+        if not success then
+            warn("Failed to use shrine:", shrine)
         end
     end
 
@@ -182,16 +165,11 @@ local function Script()
         end
     end
 
-    -- Function to buy an item from the Black Market
+    -- Function to buy an item from a shop
     local function BuyItem(shop, itemIndex)
-        local success, RemoteEvent = pcall(function()
-            return ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network")
-                :WaitForChild("Remote"):WaitForChild("Event")
-        end)
-        if success then
-            local result = RemoteEvent:FireServer("BuyShopItem", shop, itemIndex)
-        else
-            warn("Failed to find RemoteEvent for buying items from Black Market.")
+        local success, result = pcall(RemoteEvent:FireServer("BuyShopItem", shop, itemIndex))
+        if not success then
+            warn("Failed to buy item from " .. shop .. ":", result)
         end
     end
 
