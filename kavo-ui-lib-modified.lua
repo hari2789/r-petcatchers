@@ -913,7 +913,7 @@ function Kavo.CreateLib(kavName, themeList)
                 updateSectionFrame()
                 UpdateSize()
 
-                function textboxfunctions:UpdateText(newText)
+                function textboxfunctions:UpdatePlaceholder(newText)
                     if TextBox.PlaceholderText ~= "  " .. newText then
                         TextBox.PlaceholderText = "  " .. newText
                     end
