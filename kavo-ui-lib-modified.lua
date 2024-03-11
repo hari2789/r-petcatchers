@@ -914,9 +914,9 @@ function Kavo.CreateLib(kavName, themeList)
                 UpdateSize()
 
                 function textboxfunctions:UpdateText(newText)
-                  if TextBox.PlaceholderText ~= "  " .. newText then
-                    TextBox.PlaceholderText = "  " .. newText
-                  end
+                    if TextBox.PlaceholderText ~= "  " .. newText then
+                        TextBox.PlaceholderText = "  " .. newText
+                    end
                 end
 
                 local btn = textboxElement
@@ -1028,6 +1028,7 @@ function Kavo.CreateLib(kavName, themeList)
                         TextBox.TextColor3 = themeList.SchemeColor
                     end
                 end)()
+                return textboxfunctions
             end
 
             function Elements:NewToggle(tname, nTip, callback)
