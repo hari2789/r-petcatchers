@@ -53,8 +53,7 @@ local themes = {
     Background = Color3.fromRGB(36, 37, 43),
     Header = Color3.fromRGB(28, 29, 34),
     TextColor = Color3.fromRGB(255, 255, 255),
-    ElementColor = Color3.fromRGB(32, 32, 38),
-    PlaceHolderColor = Color3.fromRGB(149, 130, 190)
+    ElementColor = Color3.fromRGB(32, 32, 38)
 }
 local themeStyles = {
     DarkTheme = {
@@ -119,14 +118,6 @@ local themeStyles = {
         Header = Color3.fromRGB(22, 29, 31),
         TextColor = Color3.fromRGB(255, 255, 255),
         ElementColor = Color3.fromRGB(22, 29, 31)
-    },
-    Av = {
-        SchemeColor = Color3.fromRGB(75, 58, 113),
-        Background = Color3.fromRGB(2, 11, 27),
-        Header = Color3.fromRGB(38, 31, 53),
-        TextColor = Color3.fromRGB(235, 239, 245),
-        ElementColor = Color3.fromRGB(38, 31, 53),
-        PlaceHolderColor = Color3.fromRGB(149, 130, 190)
     }
 }
 local oldTheme = ""
@@ -178,8 +169,6 @@ function Kavo.CreateLib(kavName, themeList)
         themeList = themeStyles.Synapse
     elseif themeList == "Serpent" then
         themeList = themeStyles.Serpent
-    elseif themeList == "Av" then
-        themeList = themeStyles.Av
     else
         if themeList.SchemeColor == nil then
             themeList.SchemeColor = Color3.fromRGB(74, 99, 135)
@@ -348,8 +337,6 @@ function Kavo.CreateLib(kavName, themeList)
             themeList.Header = color
         elseif prope == "TextColor" then
             themeList.TextColor = color
-        elseif prope == "PlaceholderColor" then
-            themeList.PlaceholderColor = color
         elseif prope == "ElementColor" then
             themeList.ElementColor = color
         end
@@ -869,10 +856,10 @@ function Kavo.CreateLib(kavName, themeList)
                 TextBox.ZIndex = 99
                 TextBox.ClearTextOnFocus = false
                 TextBox.Font = Enum.Font.Gotham
-                TextBox.PlaceholderColor3 = themeList.PlaceholderColor
+                TextBox.PlaceholderColor3 = Color3.fromRGB(149, 130, 190)
                 TextBox.PlaceholderText = tplaceholder
                 TextBox.Text = ""
-                TextBox.TextColor3 = themeList.ElementColor
+                TextBox.TextColor3 = themeList.SchemeColor
                 TextBox.TextSize = 12.000
 
                 UICorner_2.CornerRadius = UDim.new(0, 4)
@@ -1035,7 +1022,8 @@ function Kavo.CreateLib(kavName, themeList)
                         moreInfo.TextColor3 = themeList.TextColor
                         write.ImageColor3 = themeList.SchemeColor
                         togName.TextColor3 = themeList.TextColor
-                        TextBox.PlaceholderColor3 = themeList.PlaceholderColor
+                        TextBox.PlaceholderColor3 = Color3.fromRGB(themeList.SchemeColor.r * 255 - 19,
+                            themeList.SchemeColor.g * 255 - 26, themeList.SchemeColor.b * 255 - 35)
                         TextBox.TextColor3 = themeList.SchemeColor
                     end
                 end)()
@@ -1521,8 +1509,8 @@ function Kavo.CreateLib(kavName, themeList)
                             TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {
                                 TextTransparency = 0
                             }):Play()
-                        Value = math.floor((((tonumber(maxvalue) - tonumber(minvalue)) / 149) * 
-                            sliderDrag.AbsoluteSize.X) + tonumber(minvalue)) or 0
+                        Value = math.floor((((tonumber(maxvalue) - tonumber(minvalue)) / 149) *
+                                               sliderDrag.AbsoluteSize.X) + tonumber(minvalue)) or 0
                         pcall(function()
                             callback(Value)
                         end)
@@ -1531,7 +1519,7 @@ function Kavo.CreateLib(kavName, themeList)
                         moveconnection = mouse.Move:Connect(function()
                             val.Text = Value
                             Value = math.floor((((tonumber(maxvalue) - tonumber(minvalue)) / 149) *
-                                sliderDrag.AbsoluteSize.X) + tonumber(minvalue))
+                                                   sliderDrag.AbsoluteSize.X) + tonumber(minvalue))
                             pcall(function()
                                 callback(Value)
                             end)
@@ -1542,7 +1530,7 @@ function Kavo.CreateLib(kavName, themeList)
                         releaseconnection = uis.InputEnded:Connect(function(Mouse)
                             if Mouse.UserInputType == Enum.UserInputType.MouseButton1 then
                                 Value = math.floor((((tonumber(maxvalue) - tonumber(minvalue)) / 149) *
-                                    sliderDrag.AbsoluteSize.X) + tonumber(minvalue))
+                                                       sliderDrag.AbsoluteSize.X) + tonumber(minvalue))
                                 pcall(function()
                                     callback(Value)
                                 end)
