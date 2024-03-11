@@ -118,6 +118,14 @@ local themeStyles = {
         Header = Color3.fromRGB(22, 29, 31),
         TextColor = Color3.fromRGB(255, 255, 255),
         ElementColor = Color3.fromRGB(22, 29, 31)
+    },
+    Av = {
+        SchemeColor = Color3.fromRGB(75, 58, 113),
+        Background = Color3.fromRGB(2, 11, 27),
+        Header = Color3.fromRGB(38, 31, 53),
+        TextColor = Color3.fromRGB(235, 239, 245),
+        PlaceHolderColor = Color3.fromRGB(149, 130, 190),
+        ElementColor = Color3.fromRGB(38, 31, 53)
     }
 }
 local oldTheme = ""
@@ -169,6 +177,8 @@ function Kavo.CreateLib(kavName, themeList)
         themeList = themeStyles.Synapse
     elseif themeList == "Serpent" then
         themeList = themeStyles.Serpent
+    elseif themeList == "Av" then
+        themeList = themeStyles.Av
     else
         if themeList.SchemeColor == nil then
             themeList.SchemeColor = Color3.fromRGB(74, 99, 135)
@@ -856,8 +866,7 @@ function Kavo.CreateLib(kavName, themeList)
                 TextBox.ZIndex = 99
                 TextBox.ClearTextOnFocus = false
                 TextBox.Font = Enum.Font.Gotham
-                TextBox.PlaceholderColor3 = Color3.fromRGB(themeList.SchemeColor.r * 255 - 19,
-                    themeList.SchemeColor.g * 255 - 26, themeList.SchemeColor.b * 255 - 35)
+                TextBox.PlaceholderColor3 = themeList.PlaceholderColor
                 TextBox.PlaceholderText = tplaceholder
                 TextBox.Text = ""
                 TextBox.TextColor3 = themeList.ElementColor
@@ -1510,8 +1519,8 @@ function Kavo.CreateLib(kavName, themeList)
                             TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {
                                 TextTransparency = 0
                             }):Play()
-                        Value = math.floor((((tonumber(maxvalue) - tonumber(minvalue)) / 149) *
-                                               sliderDrag.AbsoluteSize.X) + tonumber(minvalue)) or 0
+                        Value = math.floor((((tonumber(maxvalue) - tonumber(minvalue)) / 149) * 
+                            sliderDrag.AbsoluteSize.X) + tonumber(minvalue)) or 0
                         pcall(function()
                             callback(Value)
                         end)
@@ -1520,7 +1529,7 @@ function Kavo.CreateLib(kavName, themeList)
                         moveconnection = mouse.Move:Connect(function()
                             val.Text = Value
                             Value = math.floor((((tonumber(maxvalue) - tonumber(minvalue)) / 149) *
-                                                   sliderDrag.AbsoluteSize.X) + tonumber(minvalue))
+                                sliderDrag.AbsoluteSize.X) + tonumber(minvalue))
                             pcall(function()
                                 callback(Value)
                             end)
@@ -1531,7 +1540,7 @@ function Kavo.CreateLib(kavName, themeList)
                         releaseconnection = uis.InputEnded:Connect(function(Mouse)
                             if Mouse.UserInputType == Enum.UserInputType.MouseButton1 then
                                 Value = math.floor((((tonumber(maxvalue) - tonumber(minvalue)) / 149) *
-                                                       sliderDrag.AbsoluteSize.X) + tonumber(minvalue))
+                                    sliderDrag.AbsoluteSize.X) + tonumber(minvalue))
                                 pcall(function()
                                     callback(Value)
                                 end)
