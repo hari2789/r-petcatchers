@@ -113,12 +113,11 @@ local themeStyles = {
         ElementColor = Color3.fromRGB(24, 24, 24)
     },
     Serpent = {
-        SchemeColor = Color3.fromRGB(74, 99, 135),
-        Background = Color3.fromRGB(36, 37, 43),
-        Header = Color3.fromRGB(28, 29, 34),
+        SchemeColor = Color3.fromRGB(0, 166, 58),
+        Background = Color3.fromRGB(31, 41, 43),
+        Header = Color3.fromRGB(22, 29, 31),
         TextColor = Color3.fromRGB(255, 255, 255),
-        ElementColor = Color3.fromRGB(32, 32, 38),
-        PlaceHolderColor = Color3.fromRGB(149, 130, 190)
+        ElementColor = Color3.fromRGB(22, 29, 31)
     }
 }
 local oldTheme = ""
@@ -800,7 +799,6 @@ function Kavo.CreateLib(kavName, themeList)
                 tTip = tTip or "Gets a value of Textbox"
                 callback = callback or function()
                 end
-
                 local textboxfunctions = {}
                 local textboxElement = Instance.new("TextButton")
                 local UICorner = Instance.new("UICorner")
@@ -858,6 +856,12 @@ function Kavo.CreateLib(kavName, themeList)
                 TextBox.ZIndex = 99
                 TextBox.ClearTextOnFocus = false
                 TextBox.Font = Enum.Font.Gotham
+                TextBox.PlaceholderColor3 = Color3.fromRGB(
+    math.clamp(themeList.SchemeColor.r * 255 - 19, 0, 255),
+    math.clamp(themeList.SchemeColor.g * 255 - 26, 0, 255),
+    math.clamp(themeList.SchemeColor.b * 255 - 35, 0, 255)
+)
+
                 TextBox.PlaceholderText = tplaceholder
                 TextBox.Text = ""
                 TextBox.TextColor3 = themeList.SchemeColor
@@ -1023,15 +1027,12 @@ function Kavo.CreateLib(kavName, themeList)
                         moreInfo.TextColor3 = themeList.TextColor
                         write.ImageColor3 = themeList.SchemeColor
                         togName.TextColor3 = themeList.TextColor
-
-                        -- Set PlaceholderColor3 based on the selected theme
-                        if tname == "Serpent" and themeList.PlaceholderColor then
-                            TextBox.PlaceholderColor3 = themeList.PlaceholderColor
-                        else
-                            TextBox.PlaceholderColor3 = Color3.fromRGB(themeList.SchemeColor.r * 255 - 19,
-                                themeList.SchemeColor.g * 255 - 26, themeList.SchemeColor.b * 255 - 35)
-                        end
-
+                        TextBox.PlaceholderColor3 = Color3.fromRGB(
+                            math.clamp(themeList.SchemeColor.r * 255 - 19, 0, 255),
+                            math.clamp(themeList.SchemeColor.g * 255 - 26, 0, 255),
+                            math.clamp(themeList.SchemeColor.b * 255 - 35, 0, 255)
+                        )
+                        
                         TextBox.TextColor3 = themeList.SchemeColor
                     end
                 end)()
