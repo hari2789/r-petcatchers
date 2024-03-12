@@ -149,7 +149,8 @@ function Kavo:ToggleUI(init)
     end
 end
 
-function Kavo.CreateLib(kavName, themeList)
+function Kavo.CreateLib(kavName, themeList, init)
+    if init then 
     if not themeList then
         themeList = themes
     end
@@ -2912,5 +2913,6 @@ function Kavo.CreateLib(kavName, themeList)
         return Sections
     end
     return Tabs
+    end
 end
 return Kavo
