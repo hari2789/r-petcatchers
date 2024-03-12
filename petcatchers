@@ -473,14 +473,14 @@ function PetCatchersHub:gui()
                 loadstring(game:HttpGet(RemoteSpy))()
             end)
 
+            DeveloperTools:NewButton("Rejoin Game", "Rejoins the game", function()
+                RejoinServer()
+            end)
+
             DestroyButton = DeveloperTools:NewButton("Destroy Script", "Destroys the script and gui", function()
                 DestroyButton:DestroyGui()
                 PetCatchersHub:stop()
                 PetCatchersHub:gui()
-            end)
-
-            DeveloperTools:NewButton("Rejoin Game", "Rejoins the game", function()
-                RejoinServer()
             end)
 
             -- Creates the Sections for the Misc Tab
