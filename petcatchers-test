@@ -1,460 +1,601 @@
--- Encapsulated script variables
+local PetCatchersHub = {}
+local DestroyButton
+local DestroyScript = false
+local HasInitialized = false
+
+-- Settings and default configurations
+local Settings = {
+    Toggles = {
+        ScriptEnabled = true, -- Toggle for enabling/disabling the script
+        RespawnKraken = false, -- Toggle for Kraken respawn
+        RespawnSlime = false, -- Toggle for Slime respawn
+        StartKraken = false, -- Toggle for starting Kraken fight
+        StartSlime = false, -- Toggle for starting Slime fight
+        BuyBlackMarket = false, -- Toggle for Black Market auto buy
+        BuyGemTrader = false, -- Toggle for Gem Trader auto buy
+        BuyAuburnShop = false, -- Toggle for Auburn Shop auto buy
+        BuyMagicShop = false, -- Toggle for Magic Shop auto buy
+        UseAllShrines = false -- Toggle for using all shrines
+    },
+    Timers = {
+        RespawnCooldown = 5 -- Wait() time between Kraken respawns
+    },
+    Level = {
+        KrakenLevel = 25, -- Kraken Level
+        SlimeLevel = 25 -- King Slime Level
+    },
+    Keybinds = {
+        ToggleUi = Enum.KeyCode.M -- Keybind to toggle the UI
+    },
+    Information = {
+        ScriptVersion = "v2.6", -- Script Version
+        StableGameVersion = "v1.1.7", -- Game Version
+        Developers = "Av & Hari" -- Developers
+    },
+    DeveloperIds = {
+        Av = 164011583, -- Av's Roblox ID
+        Hari = 85087803 -- Hari's Roblox ID
+    }
+}
+
+-- Services and objects
+local PlaceId = game.PlaceId
+local JobId = game.JobId
+local Player = game.Players.LocalPlayer
+local Character = Player.Character
+local PlayerId = Player.UserId
+local UserInputService = game:GetService("UserInputService")
+local TeleportService = game:GetService("TeleportService")
+local Http = game:GetService("HttpService")
+local Api = "https://games.roblox.com/v1/games/"
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Framework = ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework")
+local Network = Framework:WaitForChild("Network")
+local RemoteEvent = Network:WaitForChild("Remote"):WaitForChild("Event")
+local RemoteFunction = Network:WaitForChild("Remote"):WaitForChild("Function")
+
+-- Flags to control the loops
+local stopRespawnKrakenLoop = false
+local stopRespawnSlimeLoop = false
+local stopStartKrakenLoop = false
+local stopStartSlimeLoop = false
+local stopBuyBlackMarketLoop = false
+local stopBuyMagicShopLoop = false
+local stopBuyGemTraderLoop = false
+local stopBuyAuburnShopLoop = false
+local stopUseAllShrinesLoop = false
+
+-- In-game names of the shrines and shops
+local shrines = {"cherry", "rune", "better-cube", "radioactive", "ticket", "gem", "egg", "berry", "cube"} -- In-game names of the shrines
+local shops = {"the-blackmarket", "magic-shop", "gem-trader", "auburn-shop"} -- In-game names of the shops
+local shopLoopNames = {"AuburnShop", "GemTrader", "MagicShop", "BlackMarket"} -- Name of the shops for the script
+
+-- Boss Levels
 local KrakenLevel
 local SlimeLevel
-local DestroyGui
 
--- Encapsulated script function
-local function PetCatchersHub()
-
-    -- Settings and default configurations
-    local Settings = {
-        Toggles = {
-            ScriptEnabled = true, -- Toggle for enabling/disabling the script
-            RespawnKraken = false, -- Toggle for Kraken respawn
-            RespawnSlime = false, -- Toggle for Slime respawn
-            StartKraken = false, -- Toggle for starting Kraken fight
-            StartSlime = false, -- Toggle for starting Slime fight
-            BuyBlackMarket = false, -- Toggle for Black Market auto buy
-            BuyGemTrader = false, -- Toggle for Gem Trader auto buy
-            BuyAuburnShop = false, -- Toggle for Auburn Shop auto buy
-            BuyMagicShop = false, -- Toggle for Magic Shop auto buy
-            UseAllShrines = false -- Toggle for using all shrines
-        },
-        Timers = {
-            RespawnCooldown = 5, -- Wait() time between Kraken respawns
-            NotificationDuration = 1 -- Duration of the notification
-        },
-        Information = {
-            ScriptVersion = "v2.5", -- Script Version
-            StableGameVersion = "v1.1.7", -- Game Version
-            Developers = "Av & Hari" -- Developers
-        },
-        Level = {
-            KrakenLevel = 25, -- Kraken Level
-            SlimeLevel = 25 -- King Slime Level
-        },
-        DeveloperIds = {
-            Av = 164011583, -- Av's Roblox ID
-            Hari = 85087803 -- Hari's Roblox ID
-        }
-    }
-
-    -- Services and objects
-    local Player = game.Players.LocalPlayer
-    local Character = Player.Character
-    local PlayerId = Player.UserId
-    local PlaceId = game.PlaceId
-    local TeleportService = game:GetService("TeleportService")
-    local ReplicatedStorage = game:GetService("ReplicatedStorage")
-    local Framework = ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework")
-    local Network = Framework:WaitForChild("Network")
-    local RemoteEvent = Network:WaitForChild("Remote"):WaitForChild("Event")
-    local RemoteFunction = Network:WaitForChild("Remote"):WaitForChild("Function")
-
-    -- Flags to control the loops
-    local stopRespawnKrakenLoop = false
-    local stopRespawnSlimeLoop = false
-    local stopStartKrakenLoop = false
-    local stopStartSlimeLoop = false
-    local stopBuyBlackMarketLoop = false
-    local stopBuyMagicShopLoop = false
-    local stopBuyGemTraderLoop = false
-    local stopBuyAuburnShopLoop = false
-    local stopUseAllShrinesLoop = false
-
-    -- In-game names of the shrines and shops
-    local shrines = {"cube", "berry", "egg", "gem", "ticket", "radioactive", "better-cube", "rune", "cherry"} -- In-game names of the shrines
-    local shops = {"auburn-shop", "gem-trader", "magic-shop", "the-blackmarket"} -- In-game names of the shops
-    local shopLoopNames = {"AuburnShop", "GemTrader", "MagicShop", "BlackMarket"} -- Name of the shops for the script
-
-    -- Function to display notifications
-    local function ActivityNotification(title, text)
-        if Settings.Toggles.ScriptEnabled then
-            game:GetService("StarterGui"):SetCore("SendNotification", {
-                Title = tostring(title),
-                Text = tostring(text),
-                Duration = Settings.Timers.NotificationDuration
-            })
-        end
-    end
-
-    -- Function to print notifications to the console
-    local function ConsoleNotification(title, text)
-        if Settings.Toggles.ScriptEnabled then
-            print(tostring(title) .. " : " .. tostring(text))
-        end
-    end
-
-    -- Function to respawn the Kraken
-    local function RespawnKraken()
-        while not stopRespawnKrakenLoop do
-            if Settings.Toggles.RespawnKraken and Settings.Toggles.ScriptEnabled then
-                local success, errorMessage = pcall(function()
-                    RemoteEvent:FireServer("RespawnBoss", "the-kraken")
-                    wait(Settings.Timers.RespawnCooldown)
-                end)
-                if not success then
-                    warn("Error while respawning Kraken:", errorMessage)
-                end
-            else
-                return
+-- Function to respawn the Kraken
+local function RespawnKraken()
+    while not stopRespawnKrakenLoop do
+        if Settings.Toggles.RespawnKraken and Settings.Toggles.ScriptEnabled then
+            local success, errorMessage = pcall(function()
+                RemoteEvent:FireServer("RespawnBoss", "the-kraken")
+                wait(Settings.Timers.RespawnCooldown)
+            end)
+            if not success then
+                warn("Error while respawning Kraken:", errorMessage)
             end
-            wait(0.1)
+        else
+            return
         end
+        wait(0.1)
     end
+end
 
-    -- Function to start the Kraken fight
-    local function StartKraken()
-        while not stopStartKrakenLoop do
-            if Settings.Toggles.StartKraken and Settings.Toggles.ScriptEnabled then
-                local success, error_message = pcall(function()
-                    RemoteFunction:InvokeServer("BossRequest", "the-kraken", tonumber(Settings.Level.KrakenLevel))
-                end)
-                if not success then
-                    warn("Error while invoking server function:", error_message)
-                end
-            else
-                return
+-- Function to start the Kraken fight
+local function StartKraken()
+    while not stopStartKrakenLoop do
+        if Settings.Toggles.StartKraken and Settings.Toggles.ScriptEnabled then
+            local success, error_message = pcall(function()
+                RemoteFunction:InvokeServer("BossRequest", "the-kraken", tonumber(Settings.Level.KrakenLevel))
+            end)
+            if not success then
+                warn("Error while invoking server function:", error_message)
             end
-            wait(0.1)
+        else
+            return
         end
+        wait(0.1)
     end
+end
 
-    -- Function to respawn the Slime
-    local function RespawnSlime()
-        while not stopRespawnSlimeLoop do
-            if Settings.Toggles.RespawnSlime and Settings.Toggles.ScriptEnabled then
-                local success, errorMessage = pcall(function()
-                    RemoteEvent:FireServer("RespawnBoss", "king-slime")
-                    wait(Settings.Timers.RespawnCooldown)
-                end)
-                if not success then
-                    warn("Error while respawning Slime:", errorMessage)
-                end
-            else
-                return
+-- Function to respawn the Slime
+local function RespawnSlime()
+    while not stopRespawnSlimeLoop do
+        if Settings.Toggles.RespawnSlime and Settings.Toggles.ScriptEnabled then
+            local success, errorMessage = pcall(function()
+                RemoteEvent:FireServer("RespawnBoss", "king-slime")
+                wait(Settings.Timers.RespawnCooldown)
+            end)
+            if not success then
+                warn("Error while respawning Slime:", errorMessage)
             end
-            wait(0.1)
+        else
+            return
         end
+        wait(0.1)
     end
+end
 
-    -- Function to start the Slime fight
-    local function StartSlime()
-        while not stopStartSlimeLoop do
-            if Settings.Toggles.StartSlime and Settings.Toggles.ScriptEnabled then
-                local success, error_message = pcall(function()
-                    RemoteFunction:InvokeServer("BossRequest", "king-slime", tonumber(Settings.Level.SlimeLevel))
-                end)
-                if not success then
-                    warn("Error while invoking server function:", error_message)
-                end
-            else
-                return
+-- Function to start the Slime fight
+local function StartSlime()
+    while not stopStartSlimeLoop do
+        if Settings.Toggles.StartSlime and Settings.Toggles.ScriptEnabled then
+            local success, error_message = pcall(function()
+                RemoteFunction:InvokeServer("BossRequest", "king-slime", tonumber(Settings.Level.SlimeLevel))
+            end)
+            if not success then
+                warn("Error while invoking server function:", error_message)
             end
-            wait(0.1)
+        else
+            return
         end
+        wait(0.1)
     end
+end
 
-    -- Function to use a shrine
-    local function UseShrine(shrineName)
-        local success, result = pcall(function()
-            RemoteEvent:FireServer("UseShrine", shrineName)
-        end)
-        if not success then
-            warn("Failed to use shrine:", shrineName)
-        end
-    end
-
-    -- Use coroutine.wrap for using shrines asynchronously
-    local function UseAllShrines()
-        while not stopUseAllShrinesLoop do
-            if Settings.Toggles.UseAllShrines and Settings.Toggles.ScriptEnabled then
-                for _, shrineName in ipairs(shrines) do
-                    coroutine.wrap(function()
-                        UseShrine(shrineName)
-                    end)()
-                    wait()
-                end
-            end
-        end
-    end
-
-    -- Function to buy an item from a shop
-    local function BuyItem(shop, itemIndex)
-        local success, result = pcall(function()
-            RemoteEvent:FireServer("BuyShopItem", shop, itemIndex)
-        end)
-        if not success then
-            warn("Failed to buy item from " .. shop .. ":", result)
-        end
-    end
-
-    -- Create functions for buying from each shop
-    for i, shopName in ipairs(shops) do
-        _G["Buy" .. shopLoopNames[i]] = function()
-            local stopLoop = _G["stopBuy" .. shopLoopNames[i] .. "Loop"] -- Corrected the variable reference
-            while not stopLoop do
-                if Settings.Toggles["Buy" .. shopLoopNames[i]] and Settings.Toggles.ScriptEnabled then
-                    for j = 1, 3 do
-                        BuyItem(shopName, j)
-                    end
-                    wait()
-                else
-                    return
-                end
-            end
-        end
-    end
-
-    -- Creates the function to teleport to the selected zone
-    local function ZoneTeleport(x, y, z)
-        local destinationPosition = Vector3.new(x, y, z)
-        if Character then
-            Character:SetPrimaryPartCFrame(CFrame.new(destinationPosition))
-        end
-    end
-
-    -- Function to rejoin the same private server
-    local function RejoinSamePrivateServer()
-        TeleportService:Teleport(PlaceId, Player)
-    end
-
-    -- Gets the UI Library
-    local KavoLibrary = "https://raw.githubusercontent.com/vyworn/r-petcatchers/main/kavo-ui-lib-modified.lua"
-    local Library = loadstring(game:HttpGet(KavoLibrary))()
-
-    -- Creates the window
-    local Window = Library.CreateLib("PetCatchersHub")
-
-    -- Creates Tabs
-    local Information = Window:NewTab("Information")
-    local Keybinds = Window:NewTab("Keybinds")
-    local AutoUse = Window:NewTab("Auto")
-    local Bosses = Window:NewTab("Bosses")
-    local Teleports = Window:NewTab("Teleports")
-    local Quests = Window:NewTab("Quests")
-    local Hubs = Window:NewTab("Hubs")
-
-    -- Creates the Sections for the Information Tab
-    Information:NewSection("Made by: " .. Settings.Information.Developers)
-    Information:NewSection("Script Version: " .. Settings.Information.ScriptVersion)
-    Information:NewSection("Game Version: " .. Settings.Information.StableGameVersion)
-
-    -- Creates the Keybinds Section
-    local Keybinds = Keybinds:NewSection("Keybinds")
-
-    -- Creates the keybind to toggle the UI
-    Keybinds:NewKeybind("Select Keybind to toggle the UI", "Hides/shows the UI", Enum.KeyCode.M, function()
-        Library:ToggleUI()
+-- Function to use a shrine
+local function UseShrine(shrineName)
+    local success, result = pcall(function()
+        RemoteEvent:FireServer("UseShrine", shrineName)
     end)
+    if not success then
+        warn("Failed to use shrine:", shrineName)
+    end
+end
 
-    -- Creates the Auto Buy Shops Section
-    local AutoBuyShops = AutoUse:NewSection("Auto Buy Shops")
+-- Use coroutine.wrap for using shrines asynchronously
+local function UseAllShrines()
+    while not stopUseAllShrinesLoop do
+        if Settings.Toggles.UseAllShrines and Settings.Toggles.ScriptEnabled then
+            for _, shrineName in ipairs(shrines) do
+                coroutine.wrap(function()
+                    UseShrine(shrineName)
+                end)()
+                wait()
+            end
+        end
+    end
+end
 
-    -- Create toggles for each shop
-    for i, shopName in ipairs(shops) do
-        local UIToggle = AutoBuyShops:NewToggle("Auto Buy " .. shopLoopNames[i], "Toggles " .. shopName .. " auto buy",
-            function(state)
-                Settings.Toggles["Buy" .. shopLoopNames[i]] = state
-                _G["stopBuy" .. shopLoopNames[i] .. "Loop"] = not state
+-- Function to buy an item from a shop
+local function BuyItem(shop, itemIndex)
+    local success, result = pcall(function()
+        RemoteEvent:FireServer("BuyShopItem", shop, itemIndex)
+    end)
+    if not success then
+        warn("Failed to buy item from " .. shop .. ":", result)
+    end
+end
+
+-- Create functions for buying from each shop
+for i, shopName in ipairs(shops) do
+    _G["Buy" .. shopLoopNames[i]] = function()
+        local stopLoop = _G["stopBuy" .. shopLoopNames[i] .. "Loop"] -- Corrected the variable reference
+        while not stopLoop do
+            if Settings.Toggles["Buy" .. shopLoopNames[i]] and Settings.Toggles.ScriptEnabled then
+                for j = 1, 3 do
+                    BuyItem(shopName, j)
+                end
+                wait()
+            else
+                return
+            end
+        end
+    end
+end
+
+-- Creates the function to teleport to the selected zone
+local function ZoneTeleport(x, y, z)
+    local destinationPosition = Vector3.new(x, y, z)
+    if Character then
+        Character:SetPrimaryPartCFrame(CFrame.new(destinationPosition))
+    end
+end
+-- https://raw.githubusercontent.com/vyworn/r-petcatchers/main/petcatchers
+-- Function to rejoin the same private server and load the script from GitHub
+local function RejoinServer()
+    -- Teleport to the same place
+    TeleportService:Teleport(PlaceId, Player)
+
+    -- Wait for the game to be fully loaded
+    game.Loaded:Wait()
+
+    -- Fetch the script content from your GitHub repository
+    local githubScriptUrl = "https://raw.githubusercontent.com/vyworn/r-petcatchers/main/petcatchers"
+    local success, scriptContent = pcall(HttpService.GetAsync, HttpService, githubScriptUrl)
+
+    if success then
+        if scriptContent then
+            -- Execute the fetched script
+            local loadFunction, loadError = loadstring(scriptContent)
+            if loadFunction then
+                local executeSuccess, executeError = pcall(loadFunction)
+                if not executeSuccess then
+                    warn("Error executing script from GitHub:", executeError)
+                end
+            else
+                warn("Failed to load script from GitHub:", loadError)
+            end
+        else
+            warn("Failed to fetch script content from GitHub.")
+        end
+    else
+        warn("Failed to fetch script from GitHub:", scriptContent)
+    end
+end
+
+
+-- Function to join a public server
+local function JoinPublicServer()
+    local _place, _id = game.PlaceId, game.JobId
+    -- Asc for lowest player count, Desc for highest player count
+    local _servers = Api .. _place .. "/servers/Public?sortOrder=Asc&limit=10"
+    function ListServers(cursor)
+        local Raw = game:HttpGet(_servers .. ((cursor and "&cursor=" .. cursor) or ""))
+        return Http:JSONDecode(Raw)
+    end
+    local Servers = ListServers()
+    local Server = Servers.data[math.random(1, #Servers.data)]
+    TeleportService:TeleportToPlaceInstance(_place, Server.id, Player)
+end
+
+function PetCatchersHub:init()
+    if not HasInitialized then
+        print("Initializing...")
+        wait(0.5)
+        HasInitialized = true
+        print("Done initializing")
+        wait(0.5)
+    else
+        warn("PetCatchersHub has already been initialized")
+    end
+end
+
+function PetCatchersHub:gui()
+    if HasInitialized then
+        print("Creating gui...")
+        -- Gets the UI Library
+        local KavoLibrary = "https://raw.githubusercontent.com/vyworn/r-petcatchers/main/kavo-ui-lib-modified.lua"
+        local Library = loadstring(game:HttpGet(KavoLibrary))()
+
+        -- Creates the window
+        local Window = Library.CreateLib("PetCatchersHub", "Ocean")
+
+        -- Creates Tabs
+        local Information = Window:NewTab("Information")
+        local AutoUse = Window:NewTab("Auto")
+        local Bosses = Window:NewTab("Bosses")
+        local Teleports = Window:NewTab("Teleports")
+        local Quests = Window:NewTab("Quests")
+        local Hubs = Window:NewTab("Hubs")
+        local Misc = Window:NewTab("Misc")
+
+        -- Creates the Sections for the Information Tab
+        Information:NewSection("Made by: " .. Settings.Information.Developers)
+        Information:NewSection("Script Version: " .. Settings.Information.ScriptVersion)
+        Information:NewSection("Game Version: " .. Settings.Information.StableGameVersion)
+
+        -- Creates the Auto Buy Shops Section
+        local AutoBuyShops = AutoUse:NewSection("Auto Buy Shops")
+
+        -- Create toggles for each shop
+        for i, shopName in ipairs(shops) do
+            local UIToggle = AutoBuyShops:NewToggle("Auto Buy " .. shopLoopNames[i],
+                "Toggles " .. shopName .. " auto buy", function(state)
+                    Settings.Toggles["Buy" .. shopLoopNames[i]] = state
+                    _G["stopBuy" .. shopLoopNames[i] .. "Loop"] = not state
+                    if state then
+                        coroutine.wrap(_G["Buy" .. shopLoopNames[i]])()
+                    end
+                end)
+        end
+
+        -- Creates the Use All Shrines Toggle
+        local UseAllShrinesSection = AutoUse:NewSection("Shrines")
+
+        -- Toggle for using all shrines
+        local UIUseAllShrinesToggle = UseAllShrinesSection:NewToggle("Use All Shrines",
+            "Toggles the state of the Use All Shrines", function(state)
+                Settings.Toggles.UseAllShrines = state
+                stopUseAllShrinesLoop = not state
                 if state then
-                    coroutine.wrap(_G["Buy" .. shopLoopNames[i]])()
+                    coroutine.wrap(UseAllShrines)()
                 end
             end)
-    end
 
-    -- Creates the Use All Shrines Toggle
-    local UseAllShrinesSection = AutoUse:NewSection("Shrines")
+        -- Creates the Sections for the Bosses Tab
+        local Kraken = Bosses:NewSection("Kraken")
+        local Slime = Bosses:NewSection("King Slime")
 
-    -- Toggle for using all shrines
-    local UIUseAllShrinesToggle = UseAllShrinesSection:NewToggle("Use All Shrines",
-        "Toggles the state of the Use All Shrines", function(state)
-            Settings.Toggles.UseAllShrines = state
-            stopUseAllShrinesLoop = not state
+        -- Creates the Respawn Kraken Toggle
+        local UIRespawnKrakenToggle = Kraken:NewToggle("Respawn Kraken", "Toggles the state of the Respawn Kraken",
+            function(state)
+                Settings.Toggles.RespawnKraken = state
+                stopRespawnKrakenLoop = not state
+                if state then
+                    coroutine.wrap(RespawnKraken)()
+                end
+            end)
+
+        -- Creates the Start Kraken Fight Toggle
+        local UIStartKrakenToggle = Kraken:NewToggle("Start Kraken Fight", "Starts the Kraken fight", function(state)
+            Settings.Toggles.StartKraken = state
+            stopStartKrakenLoop = not state
             if state then
-                coroutine.wrap(UseAllShrines)()
+                coroutine.wrap(StartKraken)()
             end
         end)
 
-    -- Creates the Sections for the Bosses Tab
-    local Kraken = Bosses:NewSection("Kraken")
-    local Slime = Bosses:NewSection("King Slime")
+        -- Creates the Kraken Level TextBox
+        KrakenLevel = Kraken:NewTextBox("Kraken Level", "Enter the level of the Kraken",
+            "Current Level: " .. Settings.Level.KrakenLevel, function(text)
+                Settings.Level.KrakenLevel = tonumber(text)
+                KrakenLevel:UpdatePlaceholder("Current Level: " .. Settings.Level.KrakenLevel)
+            end)
 
-    -- Creates the Respawn Kraken Toggle
-    local UIRespawnKrakenToggle = Kraken:NewToggle("Respawn Kraken", "Toggles the state of the Respawn Kraken",
-        function(state)
-            Settings.Toggles.RespawnKraken = state
-            stopRespawnKrakenLoop = not state
+        -- Creates the Respawn Slime Toggle
+        local UIRespawnSlimeToggle = Slime:NewToggle("Respawn Slime", "Toggles the state of the Respawn Slime",
+            function(state)
+                Settings.Toggles.RespawnSlime = state
+                stopRespawnSlimeLoop = not state
+                if state then
+                    coroutine.wrap(RespawnSlime)()
+                end
+            end)
+
+        -- Creates the StartSlimeFight Toggle
+        local UIStartSlimeToggle = Slime:NewToggle("Start Slime Fight", "Starts the Slime fight", function(state)
+            Settings.Toggles.StartSlime = state
+            stopStartSlimeLoop = not state
             if state then
-                coroutine.wrap(RespawnKraken)()
+                coroutine.wrap(StartSlime)()
             end
         end)
 
-    -- Creates the Start Kraken Fight Toggle
-    local UIStartKrakenToggle = Kraken:NewToggle("Start Kraken Fight", "Starts the Kraken fight", function(state)
-        Settings.Toggles.StartKraken = state
-        stopStartKrakenLoop = not state
-        if state then
-            coroutine.wrap(StartKraken)()
+        -- Creates the Slime Level TextBox
+        SlimeLevel = Slime:NewTextBox("Slime Level", "Enter the level of the King Slime",
+            "Current Level: " .. Settings.Level.SlimeLevel, function(text)
+                Settings.Level.SlimeLevel = tonumber(text)
+                SlimeLevel:UpdatePlaceholder("Current Level: " .. Settings.Level.SlimeLevel)
+            end)
+
+        -- Creates the Sections for the Teleports Tab
+        local BossTeleports = Teleports:NewSection("Boss Teleports")
+        local NPCTeleports = Teleports:NewSection("NPC Teleports")
+        local ZoneTeleports = Teleports:NewSection("Zone Teleports")
+        local InteractionTeleports = Teleports:NewSection("Interaction Teleports")
+
+        -- Creates the Buttons for the Boss Teleports Section
+        BossTeleports:NewButton("Kraken", "Teleports you to the Kraken", function()
+            ZoneTeleport(1218.1, 41.4, 408.5)
+        end)
+
+        BossTeleports:NewButton("King Slime", "Teleports you to the King Slime", function()
+            ZoneTeleport(696.1, 24.3, 1216.0)
+        end)
+
+        -- Creates the Buttons for the NPC Teleports Section
+        NPCTeleports:NewButton("Omacka Murato", "Teleports you to Omacka Murato", function()
+            ZoneTeleport(1230.1, 189.2, -354.5)
+        end)
+
+        NPCTeleports:NewButton("Dance Champion", "Teleports you to the Dance Champion", function()
+            ZoneTeleport(1573.0, 51.6, -151.1)
+        end)
+
+        NPCTeleports:NewButton("Archeologist", "Teleports you to the Archeologist", function()
+            ZoneTeleport(1845.9, 51.6, 268.2)
+        end)
+
+        NPCTeleports:NewButton("Old Sailor", "Teleports you to the Old Sailor", function()
+            ZoneTeleport(1318.3, 40.3, 633.8)
+        end)
+
+        NPCTeleports:NewButton("Bruh Bounty", "Teleports you to the Bruh Bounty", function()
+            ZoneTeleport(1023.3, 40.7, 587.3)
+        end)
+
+        -- Creates the Buttons for the Teleports Section
+        ZoneTeleports:NewButton("Magma Basin", "Teleports you to Magma Basin", function()
+            ZoneTeleport(1321.3, 189.1, -643.0)
+        end)
+
+        ZoneTeleports:NewButton("Gloomy Grotto", "Teleports you to Gloomy Grotto", function()
+            ZoneTeleport(1601.0, 51.7, -65.3)
+        end)
+
+        ZoneTeleports:NewButton("Dusty Dunes", "Teleports you to Dusty Dunes", function()
+            ZoneTeleport(1775.3, 51.6, 287.1)
+        end)
+
+        ZoneTeleports:NewButton("Sunset Shores", "Teleports you to Sunset Shores", function()
+            ZoneTeleport(1306.3, 40.2, 582.5)
+        end)
+
+        ZoneTeleports:NewButton("Frosty Peaks", "Teleports you to Frosty Peaks", function()
+            ZoneTeleport(1034.3, 40.0, 613.6)
+        end)
+
+        ZoneTeleports:NewButton("Auburn Woods", "Teleports you to Auburn Woods", function()
+            ZoneTeleport(779.0, 24.2, 1128.4)
+        end)
+
+        ZoneTeleports:NewButton("Mellow Meadows", "Teleports you to Mellow Meadows", function()
+            ZoneTeleport(969.1, 24.2, 1443.4)
+        end)
+
+        ZoneTeleports:NewButton("Pet Park", "Teleports you to Pet Park", function()
+            ZoneTeleport(1201.2, 12.3, 1666.9)
+        end)
+
+        -- Creates the Buttons for the Shop Teleports Section
+        InteractionTeleports:NewButton("Black Market", "Teleports you to the Black Market", function()
+            ZoneTeleport(1379.1, 294.2, -796.4)
+        end)
+
+        InteractionTeleports:NewButton("Magic Shop", "Teleports you to the Magic Shop", function()
+            ZoneTeleport(1675.4, 52.0, -15.5)
+        end)
+
+        InteractionTeleports:NewButton("Gem Trader", "Teleports you to the Gem Trader", function()
+            ZoneTeleport(1336.0, 40.6, 579.2)
+        end)
+
+        InteractionTeleports:NewButton("Sell Fish", "Teleports you to the Fish Seller", function()
+            ZoneTeleport(1323.7, 40.3, 562.3)
+        end)
+
+        InteractionTeleports:NewButton("Auburn Shop", "Teleports you to the Auburn Shop", function()
+            ZoneTeleport(787.1, 24.8, 1063.4)
+        end)
+
+        InteractionTeleports:NewButton("Crafter", "Teleports you to the Crafter", function()
+            ZoneTeleport(824.7, 24.6, 1108.5)
+        end)
+
+        -- Creates the Sections for the Quests Tab
+        local AutoQuests = Quests:NewSection("Auto Quests")
+
+        -- Creates the Buttons for the Auto Quests Section
+        AutoQuests:NewButton("GatoHub Auto Strange Quests", "Auto Strange Quests by Gato Hub", function()
+            local AutoStrange = "https://raw.githubusercontent.com/Catto-YFCN/GatoHub/main/Quests/GatoHub_AutoStrange"
+            loadstring(game:HttpGet(AutoStrange))()
+        end)
+        AutoQuests:NewButton("GatoHub Auto Bruh Quests", "Auto Bruh Quests by Gato Hub", function()
+            local AutoBruh = "https://raw.githubusercontent.com/Catto-YFCN/GatoHub/main/Quests/GatoHub_AutoBruh"
+            loadstring(game:HttpGet(AutoBruh))()
+        end)
+
+        AutoQuests:NewButton("GatoHub Auto Sailor Quests", "Auto Sailor Quests by Gato Hub", function()
+            local AutoSailor = "https://raw.githubusercontent.com/Catto-YFCN/GatoHub/main/Quests/GatoHub_AutoSailor"
+            loadstring(game:HttpGet(AutoSailor))()
+        end)
+
+        -- Creates the Sections for the Hubs Tab
+        local ScriptHubs = Hubs:NewSection("Script Hubs")
+
+        -- Creates the Buttons for the Script Hubs Section
+        ScriptHubs:NewButton("Huge Games Hub", "Opens the Huge Games Hub", function()
+            local HugeGamesHub = "https://api.luarmor.net/files/v3/loaders/f38c17c4a5e9f38a7dac14ce0940688d.lua"
+            loadstring(game:HttpGet(HugeGamesHub))()
+        end)
+
+        ScriptHubs:NewButton("Gato Hub", "Opens the Gato Hub", function()
+            local GatoHub = "https://raw.githubusercontent.com/Catto-YFCN/GatoHub/main/PetCatchers"
+            loadstring(game:HttpGet(GatoHub))()
+        end)
+
+        ScriptHubs:NewButton("Lenut Hub", "Opens the Lenut Hub", function()
+            local LenutHub = "https://raw.githubusercontent.com/lenutjr/pc/main/petcatchers"
+            loadstring(game:HttpGet(LenutHub))()
+        end)
+
+        if PlayerId == Settings.DeveloperIds.Av or PlayerId == Settings.DeveloperIds.Hari then
+            -- Creates the Sections for the Developer Tab
+            local Developer = Window:NewTab("Developer")
+
+            -- Creates the Sections for the Developer Tab
+            local DeveloperTools = Developer:NewSection("Developer Tools")
+
+            -- Creates the Buttons for the Developer Section
+            DeveloperTools:NewButton("Infinite Yield", "Opens Infinite Yield", function()
+                local InfiniteYield = "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"
+                loadstring(game:HttpGet(InfiniteYield))()
+            end)
+
+            DeveloperTools:NewButton("Remote Spy", "Opens Simple Remote Spy", function()
+                local RemoteSpy = "https://raw.githubusercontent.com/infyiff/backup/main/SimpleSpyV3/main.lua"
+                loadstring(game:HttpGet(RemoteSpy))()
+            end)
+
+            DeveloperTools:NewButton("Join Public Server", "Joins a public server", function()
+                JoinPublicServer()
+            end)
+
+            DeveloperTools:NewButton("Rejoin Game", "Rejoins the game", function()
+                RejoinServer()
+            end)
+
+            DestroyButton = DeveloperTools:NewButton("Destroy Script", "Destroys the script and gui", function()
+                DestroyButton:DestroyGui()
+                PetCatchersHub:stop()
+            end)
+
+            -- Creates the Sections for the Misc Tab
+            local Keybinds = Misc:NewSection("Keybinds")
+            local Others = Misc:NewSection("Others")
+
+            -- Creates the keybind to toggle the UI
+            Keybinds:NewKeybind("Select Keybind to toggle the UI", "Hides/shows the UI", Settings.Keybinds.ToggleUi,
+                function()
+                    Library:ToggleUI(HasInitialized)
+                end)
+
+            -- Creates the Buttons for the Misc Section
+            Others:NewButton("Join Public Server", "Joins a public server", function()
+                JoinPublicServer()
+            end)
+
+            Others:NewButton("Rejoin Game", "Rejoins the game", function()
+                RejoinServer()
+            end)
+
+            Others:NewButton("Destroy Script", "Destroys the script and gui", function()
+                DestroyButton:DestroyGui()
+                PetCatchersHub:stop()
+            end)
+            wait(0.5)
+            print("Done creating gui")
+            wait(0.5)
         end
-    end)
-
-    -- Creates the Kraken Level TextBox
-    KrakenLevel = Kraken:NewTextBox("Kraken Level", "Enter the level of the Kraken",
-        "Current Level: " .. Settings.Level.KrakenLevel, function(text)
-            Settings.Level.KrakenLevel = tonumber(text)
-            KrakenLevel:UpdatePlaceholder("Current Level: " .. Settings.Level.KrakenLevel)
-        end)
-
-    -- Creates the Respawn Slime Toggle
-    local UIRespawnSlimeToggle = Slime:NewToggle("Respawn Slime", "Toggles the state of the Respawn Slime",
-        function(state)
-            Settings.Toggles.RespawnSlime = state
-            stopRespawnSlimeLoop = not state
-            if state then
-                coroutine.wrap(RespawnSlime)()
-            end
-        end)
-
-    -- Creates the StartSlimeFight Toggle
-    local UIStartSlimeToggle = Slime:NewToggle("Start Slime Fight", "Starts the Slime fight", function(state)
-        Settings.Toggles.StartSlime = state
-        stopStartSlimeLoop = not state
-        if state then
-            coroutine.wrap(StartSlime)()
-        end
-    end)
-
-    -- Creates the Slime Level TextBox
-    SlimeLevel = Slime:NewTextBox("Slime Level", "Enter the level of the King Slime",
-        "Current Level: " .. Settings.Level.SlimeLevel, function(text)
-            Settings.Level.SlimeLevel = tonumber(text)
-            SlimeLevel:UpdatePlaceholder("Current Level: " .. Settings.Level.SlimeLevel)
-        end)
-
-    -- Creates the Sections for the Teleports Tab
-    local InteractionTeleports = Teleports:NewSection("Interaction Teleports")
-    local ZoneTeleports = Teleports:NewSection("Zone Teleports")
-
-    -- Creates the Buttons for the Shop Teleports Section
-    InteractionTeleports:NewButton("Black Market", "Teleports you to the Black Market", function()
-        ZoneTeleport(1379.1, 294.2, -796.4)
-    end)
-
-    InteractionTeleports:NewButton("Magic Shop", "Teleports you to the Magic Shop", function()
-        ZoneTeleport(1675.4, 52.0, -15.5)
-    end)
-
-    InteractionTeleports:NewButton("Gem Trader", "Teleports you to the Gem Trader", function()
-        ZoneTeleport(1336.0, 40.6, 579.2)
-    end)
-
-    InteractionTeleports:NewButton("Sell Fish", "Teleports you to the Fish Seller", function()
-        ZoneTeleport(1323.7, 40.3, 562.3)
-    end)
-
-    InteractionTeleports:NewButton("Auburn Shop", "Teleports you to the Auburn Shop", function()
-        ZoneTeleport(787.1, 24.8, 1063.4)
-    end)
-
-    InteractionTeleports:NewButton("Crafter", "Teleports you to the Crafter", function()
-        ZoneTeleport(824.7, 24.6, 1108.5)
-    end)
-
-    -- Creates the Buttons for the Teleports Section
-    ZoneTeleports:NewButton("Magma Basin", "Teleports you to Magma Basin", function()
-        ZoneTeleport(1681.2, 82.1, -470.4)
-    end)
-
-    ZoneTeleports:NewButton("Gloomy Grotto", "Teleports you to Gloomy Grotto", function()
-        ZoneTeleport(1601.0, 51.7, -65.3)
-    end)
-
-    ZoneTeleports:NewButton("Dusty Dunes", "Teleports you to Dusty Dunes", function()
-        ZoneTeleport(1775.3, 51.6, 287.1)
-    end)
-
-    ZoneTeleports:NewButton("Sunset Shores", "Teleports you to Sunset Shores", function()
-        ZoneTeleport(1306.3, 40.2, 582.5)
-    end)
-
-    ZoneTeleports:NewButton("Frosty Peaks", "Teleports you to Frosty Peaks", function()
-        ZoneTeleport(1034.3, 40.0, 613.6)
-    end)
-
-    ZoneTeleports:NewButton("Auburn Woods", "Teleports you to Auburn Woods", function()
-        ZoneTeleport(779.0, 24.2, 1128.4)
-    end)
-
-    ZoneTeleports:NewButton("Mellow Meadows", "Teleports you to Mellow Meadows", function()
-        ZoneTeleport(969.1, 24.2, 1443.4)
-    end)
-
-    ZoneTeleports:NewButton("Pet Park", "Teleports you to Pet Park", function()
-        ZoneTeleport(1201.2, 12.3, 1666.9)
-    end)
-
-    -- Creates the Sections for the Quests Tab
-    local AutoQuests = Quests:NewSection("Auto Quests")
-
-    -- Creates the Buttons for the Auto Quests Section
-    AutoQuests:NewButton("GatoHub Auto Bruh Quests", "Auto Bruh Quests by Gato Hub", function()
-        loadstring(game:HttpGet('https://raw.githubusercontent.com/Catto-YFCN/GatoHub/main/Quests/GatoHub_AutoBruh'))()
-    end)
-
-    AutoQuests:NewButton("GatoHub Auto Sailor Quests", "Auto Sailor Quests by Gato Hub", function()
-        loadstring(game:HttpGet('https://raw.githubusercontent.com/Catto-YFCN/GatoHub/main/Quests/GatoHub_AutoSailor'))()
-    end)
-
-    AutoQuests:NewButton("GatoHub Auto Strange Quests", "Auto Strange Quests by Gato Hub", function()
-        loadstring(game:HttpGet('https://raw.githubusercontent.com/Catto-YFCN/GatoHub/main/Quests/GatoHub_AutoStrange'))()
-    end)
-
-    -- Creates the Sections for the Hubs Tab
-    local ScriptHubs = Hubs:NewSection("Script Hubs")
-
-    -- Creates the Buttons for the Script Hubs Section
-    ScriptHubs:NewButton("Huge Games Hub", "Opens the Huge Games Hub", function()
-        loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/f38c17c4a5e9f38a7dac14ce0940688d.lua"))()
-    end)
-
-    ScriptHubs:NewButton("Gato Hub", "Opens the Gato Hub", function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/Catto-YFCN/GatoHub/main/PetCatchers"))()
-    end)
-
-    ScriptHubs:NewButton("Lenut Hub", "Opens the Lenut Hub", function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/lenutjr/pc/main/petcatchers"))()
-    end)
-
-    if PlayerId == Settings.DeveloperIds.Av or PlayerId == Settings.DeveloperIds.Hari then
-        -- Creates the Sections for the Developer Tab
-        local Developer = Window:NewTab("Developer")
-
-        -- Creates the Sections for the Developer Tab
-        local DeveloperTools = Developer:NewSection("Developer Tools")
-
-        -- Creates the Buttons for the Developer Section
-        DeveloperTools:NewButton("Infinite Yield", "Opens Infinite Yield", function()
-            loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
-        end)
-
-        DeveloperTools:NewButton("Remote Spy", "Opens Simple Remote Spy", function()
-            loadstring(game:HttpGet('https://raw.githubusercontent.com/infyiff/backup/main/SimpleSpyV3/main.lua'))()
-        end)
-
-        DeveloperTools:NewButton("Rejoin Game", "Rejoins the game", function()
-            RejoinSamePrivateServer()
-        end)
-
-        DestroyGui = DeveloperTools:NewButton("Destroy Script", "Destroys the script and gui", function()
-            DestroyGui:DestroyGui()
-        end)
-        
-        
-
-    -- Notify script loading
-    warn("Script loaded successfully.")
+    else
+        warn("PetCatchersHub has not been initialized")
     end
-end -- End of PetCatchersHub()
+end
 
-PetCatchersHub() -- Call the encapsulated script function to execute the code
+function PetCatchersHub:stop()
+    print("Stopping PetCatchersHub...")
+    wait(0.5)
+    print("Disabling toggles...")
+    wait(0.5)
+    Settings.Toggles.ScriptEnabled = false
+    Settings.Toggles.BuyAuburnShop = false
+    Settings.Toggles.BuyBlackMarket = false
+    Settings.Toggles.BuyGemTrader = false
+    Settings.Toggles.BuyMagicShop = false
+    Settings.Toggles.RespawnKraken = false
+    Settings.Toggles.RespawnSlime = false
+    Settings.Toggles.StartKraken = false
+    Settings.Toggles.StartSlime = false
+    Settings.Toggles.UseAllShrines = false
+    print("Stopping loops...")
+    wait(0.5)
+    stopRespawnKrakenLoop = false
+    stopRespawnSlimeLoop = false
+    stopStartKrakenLoop = false
+    stopStartSlimeLoop = false
+    stopBuyBlackMarketLoop = false
+    stopBuyMagicShopLoop = false
+    stopBuyGemTraderLoop = false
+    stopBuyAuburnShopLoop = false
+    stopUseAllShrinesLoop = false
+    print("Deinitializing...")
+    wait(0.5)
+    HasInitialized = false
+    print("Stopped PetCatchersHub")
+end
+
+PetCatchersHub:init()
+PetCatchersHub:gui()
+print("PetCatchersHub is ready\n")
