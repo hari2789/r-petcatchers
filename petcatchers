@@ -24,7 +24,7 @@ local function Script()
             NotificationDuration = 1 -- Duration of the notification
         },
         Information = {
-            ScriptVersion = "v2.3", -- Script Version
+            ScriptVersion = "v2.4", -- Script Version
             StableGameVersion = "v1.1.7", -- Game Version
             Developers = "Av & Hari" -- Developers
         },
@@ -210,13 +210,14 @@ local function Script()
     local Library = loadstring(game:HttpGet(KavoLibrary))()
 
     -- Creates the window
-    local Window = Library.CreateLib("Pet Catchers Hub  " .. Settings.Information.ScriptVersion, "Ocean")
+    local Window = Library.CreateLib("\t\t\t\t\t\t\t\t\t\tPet Catchers Hub", "Ocean")
 
     -- Creates Tabs
     local Information = Window:NewTab("Information")
     local AutoUse = Window:NewTab("Auto")
     local Bosses = Window:NewTab("Bosses")
     local Teleports = Window:NewTab("Teleports")
+    local Quests = Window:NewTab("Quests")
     local Keybinds = Window:NewTab("Keybinds")
 
     -- Creates the Sections for the Information Tab
@@ -324,18 +325,23 @@ local function Script()
     InteractionTeleports:NewButton("Black Market", "Teleports you to the Black Market", function()
         ZoneTeleport(1379.1, 294.2, -796.4)
     end)
+
     InteractionTeleports:NewButton("Magic Shop", "Teleports you to the Magic Shop", function()
         ZoneTeleport(1675.4, 52.0, -15.5)
     end)
+
     InteractionTeleports:NewButton("Gem Trader", "Teleports you to the Gem Trader", function()
         ZoneTeleport(1336.0, 40.6, 579.2)
     end)
+
     InteractionTeleports:NewButton("Sell Fish", "Teleports you to the Fish Seller", function()
         ZoneTeleport(1323.7, 40.3, 562.3)
     end)
+
     InteractionTeleports:NewButton("Auburn Shop", "Teleports you to the Auburn Shop", function()
         ZoneTeleport(787.1, 24.8, 1063.4)
     end)
+
     InteractionTeleports:NewButton("Crafter", "Teleports you to the Crafter", function()
         ZoneTeleport(824.7, 24.6, 1108.5)
     end)
@@ -344,26 +350,49 @@ local function Script()
     ZoneTeleports:NewButton("Magma Basin", "Teleports you to Magma Basin", function()
         ZoneTeleport(1681.2, 82.1, -470.4)
     end)
+
     ZoneTeleports:NewButton("Gloomy Grotto", "Teleports you to Gloomy Grotto", function()
         ZoneTeleport(1601.0, 51.7, -65.3)
     end)
+
     ZoneTeleports:NewButton("Dusty Dunes", "Teleports you to Dusty Dunes", function()
         ZoneTeleport(1775.3, 51.6, 287.1)
     end)
+
     ZoneTeleports:NewButton("Sunset Shores", "Teleports you to Sunset Shores", function()
         ZoneTeleport(1306.3, 40.2, 582.5)
     end)
+
     ZoneTeleports:NewButton("Frosty Peaks", "Teleports you to Frosty Peaks", function()
         ZoneTeleport(1034.3, 40.0, 613.6)
     end)
+
     ZoneTeleports:NewButton("Auburn Woods", "Teleports you to Auburn Woods", function()
         ZoneTeleport(779.0, 24.2, 1128.4)
     end)
+
     ZoneTeleports:NewButton("Mellow Meadows", "Teleports you to Mellow Meadows", function()
         ZoneTeleport(969.1, 24.2, 1443.4)
     end)
+
     ZoneTeleports:NewButton("Pet Park", "Teleports you to Pet Park", function()
         ZoneTeleport(1201.2, 12.3, 1666.9)
+    end)
+
+    -- Creates the Sections for the Quests Tab
+    local AutoQuests = Quests:NewSection("Auto Quests")
+
+    -- Creates the Buttons for the Auto Quests Section
+    AutoQuests:NewButton("GatoHub Auto Bruh Quests", "Auto Bruh Quests by Gato Hub", function()
+        loadstring(game:HttpGet('https://raw.githubusercontent.com/Catto-YFCN/GatoHub/main/Quests/GatoHub_AutoBruh'))()        
+    end)
+
+    AutoQuests:NewButton("GatoHub Auto Sailor Quests", "Auto Sailor Quests by Gato Hub", function()
+        loadstring(game:HttpGet('https://raw.githubusercontent.com/Catto-YFCN/GatoHub/main/Quests/GatoHub_AutoSailor'))()
+    end)
+
+    AutoQuests:NewButton("GatoHub Auto Strange Quests", "Auto Strange Quests by Gato Hub", function()
+        loadstring(game:HttpGet('https://raw.githubusercontent.com/Catto-YFCN/GatoHub/main/Quests/GatoHub_AutoStrange'))()
     end)
 
     -- Notify script loading
