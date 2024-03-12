@@ -207,9 +207,9 @@ end
 
 function PetCatchersHub:init()
     if not HasInitialized then
-        print("Initializing PetCatchersHub...")
+        print("Initializing...")
         HasInitialized = true
-        print("Done initializing PetCatchersHub")
+        print("Done initializing")
     else
         warn("PetCatchersHub has already been initialized")
     end
@@ -504,7 +504,7 @@ function PetCatchersHub:gui()
                 PetCatchersHub:gui()
             end)
 
-            print("Created gui")
+            print("Done creating gui")
         end
     else
         warn("PetCatchersHub has not been initialized")
@@ -541,3 +541,4 @@ end
 
 PetCatchersHub:init()
 PetCatchersHub:gui()
+print("PetCatchersHub is ready")
