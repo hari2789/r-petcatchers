@@ -440,6 +440,10 @@ function PetCatchersHub:gui()
         local AutoQuests = Quests:NewSection("Auto Quests")
 
         -- Creates the Buttons for the Auto Quests Section
+        AutoQuests:NewButton("GatoHub Auto Strange Quests", "Auto Strange Quests by Gato Hub", function()
+            local AutoStrange = "https://raw.githubusercontent.com/Catto-YFCN/GatoHub/main/Quests/GatoHub_AutoStrange"
+            loadstring(game:HttpGet(AutoStrange))()
+        end)
         AutoQuests:NewButton("GatoHub Auto Bruh Quests", "Auto Bruh Quests by Gato Hub", function()
             local AutoBruh = "https://raw.githubusercontent.com/Catto-YFCN/GatoHub/main/Quests/GatoHub_AutoBruh"
             loadstring(game:HttpGet(AutoBruh))()
@@ -448,11 +452,6 @@ function PetCatchersHub:gui()
         AutoQuests:NewButton("GatoHub Auto Sailor Quests", "Auto Sailor Quests by Gato Hub", function()
             local AutoSailor = "https://raw.githubusercontent.com/Catto-YFCN/GatoHub/main/Quests/GatoHub_AutoSailor"
             loadstring(game:HttpGet(AutoSailor))()
-        end)
-
-        AutoQuests:NewButton("GatoHub Auto Strange Quests", "Auto Strange Quests by Gato Hub", function()
-            local AutoStrange = "https://raw.githubusercontent.com/Catto-YFCN/GatoHub/main/Quests/GatoHub_AutoStrange"
-            loadstring(game:HttpGet(AutoStrange))()
         end)
 
         -- Creates the Sections for the Hubs Tab
