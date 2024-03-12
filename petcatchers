@@ -63,8 +63,8 @@ local stopBuyAuburnShopLoop = false
 local stopUseAllShrinesLoop = false
 
 -- In-game names of the shrines and shops
-local shrines = {"cube", "berry", "egg", "gem", "ticket", "radioactive", "better-cube", "rune", "cherry"} -- In-game names of the shrines
-local shops = {"auburn-shop", "gem-trader", "magic-shop", "the-blackmarket"} -- In-game names of the shops
+local shrines = {"cherry", "rune", "better-cube", "radioactive", "ticket", "gem", "egg", "berry", "cube"} -- In-game names of the shrines
+local shops = {"the-blackmarket", "magic-shop", "gem-trader", "auburn-shop"} -- In-game names of the shops
 local shopLoopNames = {"AuburnShop", "GemTrader", "MagicShop", "BlackMarket"} -- Name of the shops for the script
 
 -- Boss Levels
