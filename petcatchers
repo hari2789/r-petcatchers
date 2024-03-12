@@ -36,11 +36,13 @@ local function Script()
 
     -- Services and objects
     local ReplicatedStorage = game:GetService("ReplicatedStorage")
+    local Player = game.Players.LocalPlayer
+    local character = Player.Character
     local Framework = ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework")
     local Network = Framework:WaitForChild("Network")
     local RemoteEvent = Network:WaitForChild("Remote"):WaitForChild("Event")
     local RemoteFunction = Network:WaitForChild("Remote"):WaitForChild("Function")
-
+    
     -- Flags to control the loops
     local stopRespawnKrakenLoop = false
     local stopRespawnSlimeLoop = false
@@ -197,8 +199,6 @@ local function Script()
     end
 
     local function ZoneTeleport(x, y, z)
-        local player = game.Players.LocalPlayer
-        local character = player.Character
         local destinationPosition = Vector3.new(x, y, z)
         if character then
             character:SetPrimaryPartCFrame(CFrame.new(destinationPosition))
