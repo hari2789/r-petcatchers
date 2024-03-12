@@ -791,6 +791,10 @@ function Kavo.CreateLib(kavName, themeList)
                 function ButtonFunction:UpdateButton(newTitle)
                     btnInfo.Text = newTitle
                 end
+
+                function ButtonFunction:DestroyGui()
+                    ScreenGui:Destroy()
+                end
                 return ButtonFunction
             end
 
@@ -856,12 +860,8 @@ function Kavo.CreateLib(kavName, themeList)
                 TextBox.ZIndex = 99
                 TextBox.ClearTextOnFocus = false
                 TextBox.Font = Enum.Font.Gotham
-                TextBox.PlaceholderColor3 = Color3.fromRGB(
-    math.clamp(themeList.SchemeColor.r * 255 - 19, 0, 255),
-    math.clamp(themeList.SchemeColor.g * 255 - 26, 0, 255),
-    math.clamp(themeList.SchemeColor.b * 255 - 35, 0, 255)
-)
-
+                TextBox.PlaceholderColor3 = Color3.fromRGB(themeList.SchemeColor.r * 255 - 19,
+                    themeList.SchemeColor.g * 255 - 26, themeList.SchemeColor.b * 255 - 35)
                 TextBox.PlaceholderText = tplaceholder
                 TextBox.Text = ""
                 TextBox.TextColor3 = themeList.SchemeColor
@@ -1027,17 +1027,13 @@ function Kavo.CreateLib(kavName, themeList)
                         moreInfo.TextColor3 = themeList.TextColor
                         write.ImageColor3 = themeList.SchemeColor
                         togName.TextColor3 = themeList.TextColor
-                        TextBox.PlaceholderColor3 = Color3.fromRGB(
-                            math.clamp(themeList.SchemeColor.r * 255 - 19, 0, 255),
-                            math.clamp(themeList.SchemeColor.g * 255 - 26, 0, 255),
-                            math.clamp(themeList.SchemeColor.b * 255 - 35, 0, 255)
-                        )
-                        
+                        TextBox.PlaceholderColor3 = Color3.fromRGB(themeList.SchemeColor.r * 255 - 19,
+                            themeList.SchemeColor.g * 255 - 26, themeList.SchemeColor.b * 255 - 35)
                         TextBox.TextColor3 = themeList.SchemeColor
                     end
                 end)()
                 return textboxfunctions
-            end
+            end 
 
             function Elements:NewToggle(tname, nTip, callback)
                 local TogFunction = {}
