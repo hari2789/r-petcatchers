@@ -195,15 +195,60 @@ for i, shopName in ipairs(shops) do
     end
 end
 
+-- Define teleport locations
+local teleportLocations = {
+    BossTeleports = {
+        {"Kraken", "Teleports you to the Kraken", {1218.1, 41.4, 408.5}},
+        {"King Slime", "Teleports you to the King Slime", {696.1, 24.3, 1216.0}}
+        },
+    NPCTeleports = {
+        {"Omacka Murato", "Teleports you to Omacka Murato", {1230.1, 189.2, -354.5}},
+        {"Dance Champion", "Teleports you to the Dance Champion", {1573.0, 51.6, -151.1}},
+        {"Archeologist", "Teleports you to the Archeologist", {1845.9, 51.6, 268.2}},
+        {"Old Sailor", "Teleports you to the Old Sailor", {1318.3, 40.3, 633.8}},
+        {"Bruh Bounty", "Teleports you to the Bruh Bounty", {1023.3, 40.7, 587.3}}
+        },
+    ZoneTeleports = {
+        {"Magma Basin", "Teleports you to Magma Basin", {1321.3, 189.1, -643.0}},
+        {"Gloomy Grotto", "Teleports you to Gloomy Grotto", {1601.0, 51.7, -65.3}},
+        {"Dusty Dunes", "Teleports you to Dusty Dunes", {1775.3, 51.6, 287.1}},
+        {"Sunset Shores", "Teleports you to Sunset Shores", {1306.3, 40.2, 582.5}},
+        {"Frosty Peaks", "Teleports you to Frosty Peaks", {1034.3, 40.0, 613.6}},
+        {"Auburn Woods", "Teleports you to Auburn Woods", {779.0, 24.2, 1128.4}},
+        {"Mellow Meadows", "Teleports you to Mellow Meadows", {969.1, 24.2, 1443.4}},
+        {"Pet Park", "Teleports you to Pet Park", {1201.2, 12.3, 1666.9}}
+        },
+    InteractionTeleports = {
+        {"Black Market", "Teleports you to the Black Market", {1379.1, 294.2, -796.4}},
+        {"Magic Shop", "Teleports you to the Magic Shop", {1675.4, 52.0, -15.5}},
+        {"Gem Trader", "Teleports you to the Gem Trader", {1336.0, 40.6, 579.2}},
+        {"Sell Fish", "Teleports you to the Fish Seller", {1323.7, 40.3, 562.3}},
+        {"Auburn Shop", "Teleports you to the Auburn Shop", {787.1, 24.8, 1063.4}},
+        {"Crafter", "Teleports you to the Crafter", {824.7, 24.6, 1108.5}}
+        }
+}
+
 -- Creates the function to teleport to the selected zone
-local function ZoneTeleport(x, y, z)
+local function TeleportTo(x, y, z)
     local destinationPosition = Vector3.new(x, y, z)
     if Character then
         Character:SetPrimaryPartCFrame(CFrame.new(destinationPosition))
     end
 end
 
--- Function to rejoin the same private server
+-- Function to create teleport buttons
+local function createTeleportButtons(category, teleportData)
+    if teleportData then
+        for _, data in ipairs(teleportData) do
+            category:NewButton(data[1], data[2], function()
+                TeleportTo(table.unpack(data[3]))
+            end)
+        end
+    else
+        warn("Teleport data is nil. Unable to create teleport buttons.")
+    end
+end
+
 local function RejoinServer()
     TeleportService:Teleport(PlaceId, Player)
 end
@@ -256,7 +301,7 @@ function PetCatchersHub:gui()
         -- Creates the Sections for the Information Tab
         Information:NewSection("Made by: " .. Settings.Information.Developers)
         Information:NewSection("Script Version: " .. Settings.Information.ScriptVersion)
-        Information:NewSection("Game Version: " .. Settings.Information.StableGameVersion)
+        Information:NewSection("Stable Game Version: " .. Settings.Information.StableGameVersion)
 
         -- Creates the Auto Buy Shops Section
         local AutoBuyShops = AutoUse:NewSection("Auto Buy Shops")
@@ -348,93 +393,10 @@ function PetCatchersHub:gui()
         local ZoneTeleports = Teleports:NewSection("Zone Teleports")
         local InteractionTeleports = Teleports:NewSection("Interaction Teleports")
 
-        -- Creates the Buttons for the Boss Teleports Section
-        BossTeleports:NewButton("Kraken", "Teleports you to the Kraken", function()
-            ZoneTeleport(1218.1, 41.4, 408.5)
-        end)
-
-        BossTeleports:NewButton("King Slime", "Teleports you to the King Slime", function()
-            ZoneTeleport(696.1, 24.3, 1216.0)
-        end)
-
-        -- Creates the Buttons for the NPC Teleports Section
-        NPCTeleports:NewButton("Omacka Murato", "Teleports you to Omacka Murato", function()
-            ZoneTeleport(1230.1, 189.2, -354.5)
-        end)
-
-        NPCTeleports:NewButton("Dance Champion", "Teleports you to the Dance Champion", function()
-            ZoneTeleport(1573.0, 51.6, -151.1)
-        end)
-
-        NPCTeleports:NewButton("Archeologist", "Teleports you to the Archeologist", function()
-            ZoneTeleport(1845.9, 51.6, 268.2)
-        end)
-
-        NPCTeleports:NewButton("Old Sailor", "Teleports you to the Old Sailor", function()
-            ZoneTeleport(1318.3, 40.3, 633.8)
-        end)
-
-        NPCTeleports:NewButton("Bruh Bounty", "Teleports you to the Bruh Bounty", function()
-            ZoneTeleport(1023.3, 40.7, 587.3)
-        end)
-
-        -- Creates the Buttons for the Teleports Section
-        ZoneTeleports:NewButton("Magma Basin", "Teleports you to Magma Basin", function()
-            ZoneTeleport(1321.3, 189.1, -643.0)
-        end)
-
-        ZoneTeleports:NewButton("Gloomy Grotto", "Teleports you to Gloomy Grotto", function()
-            ZoneTeleport(1601.0, 51.7, -65.3)
-        end)
-
-        ZoneTeleports:NewButton("Dusty Dunes", "Teleports you to Dusty Dunes", function()
-            ZoneTeleport(1775.3, 51.6, 287.1)
-        end)
-
-        ZoneTeleports:NewButton("Sunset Shores", "Teleports you to Sunset Shores", function()
-            ZoneTeleport(1306.3, 40.2, 582.5)
-        end)
-
-        ZoneTeleports:NewButton("Frosty Peaks", "Teleports you to Frosty Peaks", function()
-            ZoneTeleport(1034.3, 40.0, 613.6)
-        end)
-
-        ZoneTeleports:NewButton("Auburn Woods", "Teleports you to Auburn Woods", function()
-            ZoneTeleport(779.0, 24.2, 1128.4)
-        end)
-
-        ZoneTeleports:NewButton("Mellow Meadows", "Teleports you to Mellow Meadows", function()
-            ZoneTeleport(969.1, 24.2, 1443.4)
-        end)
-
-        ZoneTeleports:NewButton("Pet Park", "Teleports you to Pet Park", function()
-            ZoneTeleport(1201.2, 12.3, 1666.9)
-        end)
-
-        -- Creates the Buttons for the Shop Teleports Section
-        InteractionTeleports:NewButton("Black Market", "Teleports you to the Black Market", function()
-            ZoneTeleport(1379.1, 294.2, -796.4)
-        end)
-
-        InteractionTeleports:NewButton("Magic Shop", "Teleports you to the Magic Shop", function()
-            ZoneTeleport(1675.4, 52.0, -15.5)
-        end)
-
-        InteractionTeleports:NewButton("Gem Trader", "Teleports you to the Gem Trader", function()
-            ZoneTeleport(1336.0, 40.6, 579.2)
-        end)
-
-        InteractionTeleports:NewButton("Sell Fish", "Teleports you to the Fish Seller", function()
-            ZoneTeleport(1323.7, 40.3, 562.3)
-        end)
-
-        InteractionTeleports:NewButton("Auburn Shop", "Teleports you to the Auburn Shop", function()
-            ZoneTeleport(787.1, 24.8, 1063.4)
-        end)
-
-        InteractionTeleports:NewButton("Crafter", "Teleports you to the Crafter", function()
-            ZoneTeleport(824.7, 24.6, 1108.5)
-        end)
+        createTeleportButtons(BossTeleports, teleportLocations.BossTeleports)
+        createTeleportButtons(NPCTeleports, teleportLocations.NPCTeleports)
+        createTeleportButtons(ZoneTeleports, teleportLocations.ZoneTeleports)
+        createTeleportButtons(InteractionTeleports, teleportLocations.InteractionTeleports)
 
         -- Creates the Sections for the Quests Tab
         local AutoQuests = Quests:NewSection("Auto Quests")
