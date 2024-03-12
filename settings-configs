@@ -1,0 +1,201 @@
+-- Settings and default configurations
+local Settings = {
+    Toggles = {
+        ScriptEnabled = true, -- Toggle for enabling/disabling the script
+        RespawnKraken = false, -- Toggle for Kraken respawn
+        RespawnSlime = false, -- Toggle for Slime respawn
+        StartKraken = false, -- Toggle for starting Kraken fight
+        StartSlime = false, -- Toggle for starting Slime fight
+        BuyBlackMarket = false, -- Toggle for Black Market auto buy
+        BuyGemTrader = false, -- Toggle for Gem Trader auto buy
+        BuyAuburnShop = false, -- Toggle for Auburn Shop auto buy
+        BuyMagicShop = false, -- Toggle for Magic Shop auto buy
+        UseAllShrines = false -- Toggle for using all shrines
+    },
+    Timers = {
+        RespawnCooldown = 5 -- Wait() time between Kraken respawns
+    },
+    Level = {
+        KrakenLevel = 25, -- Kraken Level
+        SlimeLevel = 25 -- King Slime Level
+    },
+    Keybinds = {
+        ToggleUi = Enum.KeyCode.M -- Keybind to toggle the UI
+    },
+    Information = {
+        ScriptVersion = "v2.5", -- Script Version
+        StableGameVersion = "v1.1.7", -- Game Version
+        Developers = "Av & Hari" -- Developers
+    },
+    DeveloperIds = {
+        Av = 164011583, -- Av's Roblox ID
+        Hari = 85087803 -- Hari's Roblox ID
+    }
+}
+
+-- Services and objects
+local PlaceId = game.PlaceId
+local Player = game.Players.LocalPlayer
+local Character = Player.Character
+local PlayerId = Player.UserId
+local UserInputService = game:GetService("UserInputService")
+local TeleportService = game:GetService("TeleportService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Framework = ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework")
+local Network = Framework:WaitForChild("Network")
+local RemoteEvent = Network:WaitForChild("Remote"):WaitForChild("Event")
+local RemoteFunction = Network:WaitForChild("Remote"):WaitForChild("Function")
+
+-- Flags to control the loops
+local stopRespawnKrakenLoop = false
+local stopRespawnSlimeLoop = false
+local stopStartKrakenLoop = false
+local stopStartSlimeLoop = false
+local stopBuyBlackMarketLoop = false
+local stopBuyMagicShopLoop = false
+local stopBuyGemTraderLoop = false
+local stopBuyAuburnShopLoop = false
+local stopUseAllShrinesLoop = false
+
+-- In-game names of the shrines and shops
+local shrines = {"cube", "berry", "egg", "gem", "ticket", "radioactive", "better-cube", "rune", "cherry"} -- In-game names of the shrines
+local shops = {"auburn-shop", "gem-trader", "magic-shop", "the-blackmarket"} -- In-game names of the shops
+local shopLoopNames = {"AuburnShop", "GemTrader", "MagicShop", "BlackMarket"} -- Name of the shops for the script
+
+-- Boss Levels
+local KrakenLevel
+local SlimeLevel
+
+-- Function to respawn the Kraken
+local function RespawnKraken()
+    while not stopRespawnKrakenLoop do
+        if Settings.Toggles.RespawnKraken and Settings.Toggles.ScriptEnabled then
+            local success, errorMessage = pcall(function()
+                RemoteEvent:FireServer("RespawnBoss", "the-kraken")
+                wait(Settings.Timers.RespawnCooldown)
+            end)
+            if not success then
+                warn("Error while respawning Kraken:", errorMessage)
+            end
+        else
+            return
+        end
+        wait(0.1)
+    end
+end
+
+-- Function to start the Kraken fight
+local function StartKraken()
+    while not stopStartKrakenLoop do
+        if Settings.Toggles.StartKraken and Settings.Toggles.ScriptEnabled then
+            local success, error_message = pcall(function()
+                RemoteFunction:InvokeServer("BossRequest", "the-kraken", tonumber(Settings.Level.KrakenLevel))
+            end)
+            if not success then
+                warn("Error while invoking server function:", error_message)
+            end
+        else
+            return
+        end
+        wait(0.1)
+    end
+end
+
+-- Function to respawn the Slime
+local function RespawnSlime()
+    while not stopRespawnSlimeLoop do
+        if Settings.Toggles.RespawnSlime and Settings.Toggles.ScriptEnabled then
+            local success, errorMessage = pcall(function()
+                RemoteEvent:FireServer("RespawnBoss", "king-slime")
+                wait(Settings.Timers.RespawnCooldown)
+            end)
+            if not success then
+                warn("Error while respawning Slime:", errorMessage)
+            end
+        else
+            return
+        end
+        wait(0.1)
+    end
+end
+
+-- Function to start the Slime fight
+local function StartSlime()
+    while not stopStartSlimeLoop do
+        if Settings.Toggles.StartSlime and Settings.Toggles.ScriptEnabled then
+            local success, error_message = pcall(function()
+                RemoteFunction:InvokeServer("BossRequest", "king-slime", tonumber(Settings.Level.SlimeLevel))
+            end)
+            if not success then
+                warn("Error while invoking server function:", error_message)
+            end
+        else
+            return
+        end
+        wait(0.1)
+    end
+end
+
+-- Function to use a shrine
+local function UseShrine(shrineName)
+    local success, result = pcall(function()
+        RemoteEvent:FireServer("UseShrine", shrineName)
+    end)
+    if not success then
+        warn("Failed to use shrine:", shrineName)
+    end
+end
+
+-- Use coroutine.wrap for using shrines asynchronously
+local function UseAllShrines()
+    while not stopUseAllShrinesLoop do
+        if Settings.Toggles.UseAllShrines and Settings.Toggles.ScriptEnabled then
+            for _, shrineName in ipairs(shrines) do
+                coroutine.wrap(function()
+                    UseShrine(shrineName)
+                end)()
+                wait()
+            end
+        end
+    end
+end
+
+-- Function to buy an item from a shop
+local function BuyItem(shop, itemIndex)
+    local success, result = pcall(function()
+        RemoteEvent:FireServer("BuyShopItem", shop, itemIndex)
+    end)
+    if not success then
+        warn("Failed to buy item from " .. shop .. ":", result)
+    end
+end
+
+-- Create functions for buying from each shop
+for i, shopName in ipairs(shops) do
+    _G["Buy" .. shopLoopNames[i]] = function()
+        local stopLoop = _G["stopBuy" .. shopLoopNames[i] .. "Loop"] -- Corrected the variable reference
+        while not stopLoop do
+            if Settings.Toggles["Buy" .. shopLoopNames[i]] and Settings.Toggles.ScriptEnabled then
+                for j = 1, 3 do
+                    BuyItem(shopName, j)
+                end
+                wait()
+            else
+                return
+            end
+        end
+    end
+end
+
+-- Creates the function to teleport to the selected zone
+local function ZoneTeleport(x, y, z)
+    local destinationPosition = Vector3.new(x, y, z)
+    if Character then
+        Character:SetPrimaryPartCFrame(CFrame.new(destinationPosition))
+    end
+end
+
+-- Function to rejoin the same private server
+local function RejoinServer()
+    TeleportService:Teleport(PlaceId, Player)
+end
