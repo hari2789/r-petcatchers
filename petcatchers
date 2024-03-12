@@ -408,8 +408,12 @@ local function Script()
         local DeveloperSection = Developer:NewSection("Developer")
 
         -- Creates the Buttons for the Developer Section
-        DeveloperSection:NewButton("Remote Spy", "Opens Simple Remote Spy", function()
+        DeveloperSection:NewButton("Infinite Yield", "Opens Infinite Yield", function()
             loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
+        end)
+
+        DeveloperSection:NewButton("Remote Spy", "Opens Simple Remote Spy", function()
+            loadstring(game:HttpGet('https://raw.githubusercontent.com/infyiff/backup/main/SimpleSpyV3/main.lua'))()
         end)
     end
 
