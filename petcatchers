@@ -31,13 +31,18 @@ local function Script()
         Level = {
             KrakenLevel = 25, -- Kraken Level
             SlimeLevel = 25 -- King Slime Level
+        },
+        DeveloperIds = {
+            Av = 164011583, -- Av's Roblox ID
+            Hari = 85087803 -- Hari's Roblox ID
         }
     }
 
     -- Services and objects
     local ReplicatedStorage = game:GetService("ReplicatedStorage")
     local Player = game.Players.LocalPlayer
-    local character = Player.Character
+    local Character = Player.Character
+    local UserId = Player.UserId
     local Framework = ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework")
     local Network = Framework:WaitForChild("Network")
     local RemoteEvent = Network:WaitForChild("Remote"):WaitForChild("Event")
@@ -200,8 +205,8 @@ local function Script()
 
     local function ZoneTeleport(x, y, z)
         local destinationPosition = Vector3.new(x, y, z)
-        if character then
-            character:SetPrimaryPartCFrame(CFrame.new(destinationPosition))
+        if Character then
+            Character:SetPrimaryPartCFrame(CFrame.new(destinationPosition))
         end
     end
 
@@ -394,6 +399,19 @@ local function Script()
     AutoQuests:NewButton("GatoHub Auto Strange Quests", "Auto Strange Quests by Gato Hub", function()
         loadstring(game:HttpGet('https://raw.githubusercontent.com/Catto-YFCN/GatoHub/main/Quests/GatoHub_AutoStrange'))()
     end)
+
+    if UserId == Settings.DeveloperIds.Av or UserId == Settings.DeveloperIds.Hari then
+        -- Creates the Sections for the Developer Tab
+        local Developer = Window:NewTab("Developer")
+
+        -- Creates the Sections for the Developer Tab
+        local DeveloperSection = Developer:NewSection("Developer")
+
+        -- Creates the Buttons for the Developer Section
+        DeveloperSection:NewButton("Remote Spy", "Opens Simple Remote Spy", function()
+            loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
+        end)
+    end
 
     -- Notify script loading
     warn("Script loaded successfully.")
