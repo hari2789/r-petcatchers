@@ -40,11 +40,14 @@ local Settings = {
 
 -- Services and objects
 local PlaceId = game.PlaceId
+local JobId = game.JobId
 local Player = game.Players.LocalPlayer
 local Character = Player.Character
 local PlayerId = Player.UserId
 local UserInputService = game:GetService("UserInputService")
 local TeleportService = game:GetService("TeleportService")
+local Http = game:GetService("HttpService")
+local Api = "https://games.roblox.com/v1/games/"
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Framework = ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework")
 local Network = Framework:WaitForChild("Network")
@@ -205,11 +208,27 @@ local function RejoinServer()
     TeleportService:Teleport(PlaceId, Player)
 end
 
+-- Function to join a public server
+local function JoinPublicServer()
+    local _place, _id = game.PlaceId, game.JobId
+    -- Asc for lowest player count, Desc for highest player count
+    local _servers = Api .. _place .. "/servers/Public?sortOrder=Asc&limit=10"
+    function ListServers(cursor)
+        local Raw = game:HttpGet(_servers .. ((cursor and "&cursor=" .. cursor) or ""))
+        return Http:JSONDecode(Raw)
+    end
+    local Servers = ListServers()
+    local Server = Servers.data[math.random(1, #Servers.data)]
+    TeleportService:TeleportToPlaceInstance(_place, Server.id, Player)
+end
+
 function PetCatchersHub:init()
     if not HasInitialized then
         print("Initializing...")
+        wait(0.5)
         HasInitialized = true
         print("Done initializing")
+        wait(0.5)
     else
         warn("PetCatchersHub has already been initialized")
     end
@@ -473,6 +492,10 @@ function PetCatchersHub:gui()
                 loadstring(game:HttpGet(RemoteSpy))()
             end)
 
+            DeveloperTools:NewButton("Join Public Server", "Joins a public server", function()
+                JoinPublicServer()
+            end)
+
             DeveloperTools:NewButton("Rejoin Game", "Rejoins the game", function()
                 RejoinServer()
             end)
@@ -480,7 +503,6 @@ function PetCatchersHub:gui()
             DestroyButton = DeveloperTools:NewButton("Destroy Script", "Destroys the script and gui", function()
                 DestroyButton:DestroyGui()
                 PetCatchersHub:stop()
-                PetCatchersHub:gui()
             end)
 
             -- Creates the Sections for the Misc Tab
@@ -493,7 +515,11 @@ function PetCatchersHub:gui()
                     Library:ToggleUI(HasInitialized)
                 end)
 
-            -- Creates the Rejoin Game Button
+            -- Creates the Buttons for the Misc Section
+            Others:NewButton("Join Public Server", "Joins a public server", function()
+                JoinPublicServer()
+            end)
+
             Others:NewButton("Rejoin Game", "Rejoins the game", function()
                 RejoinServer()
             end)
@@ -501,10 +527,10 @@ function PetCatchersHub:gui()
             Others:NewButton("Destroy Script", "Destroys the script and gui", function()
                 DestroyButton:DestroyGui()
                 PetCatchersHub:stop()
-                PetCatchersHub:gui()
             end)
-
+            wait(0.5)
             print("Done creating gui")
+            wait(0.5)
         end
     else
         warn("PetCatchersHub has not been initialized")
@@ -513,7 +539,9 @@ end
 
 function PetCatchersHub:stop()
     print("Stopping PetCatchersHub...")
-    print("Disabling toggles")
+    wait(0.5)
+    print("Disabling toggles...")
+    wait(0.5)
     Settings.Toggles.ScriptEnabled = false
     Settings.Toggles.BuyAuburnShop = false
     Settings.Toggles.BuyBlackMarket = false
@@ -525,6 +553,7 @@ function PetCatchersHub:stop()
     Settings.Toggles.StartSlime = false
     Settings.Toggles.UseAllShrines = false
     print("Stopping loops...")
+    wait(0.5)
     stopRespawnKrakenLoop = false
     stopRespawnSlimeLoop = false
     stopStartKrakenLoop = false
@@ -535,10 +564,11 @@ function PetCatchersHub:stop()
     stopBuyAuburnShopLoop = false
     stopUseAllShrinesLoop = false
     print("Deinitializing...")
+    wait(0.5)
     HasInitialized = false
     print("Stopped PetCatchersHub")
 end
 
 PetCatchersHub:init()
 PetCatchersHub:gui()
-print("PetCatchersHub is ready")
+print("PetCatchersHub is ready\n")
