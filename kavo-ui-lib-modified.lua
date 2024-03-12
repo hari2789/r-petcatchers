@@ -139,11 +139,13 @@ end)
 
 local LibName = tostring(math.random(1, 100)) .. tostring(math.random(1, 50)) .. tostring(math.random(1, 100))
 
-function Kavo:ToggleUI()
-    if game.CoreGui[LibName].Enabled then
-        game.CoreGui[LibName].Enabled = false
-    else
-        game.CoreGui[LibName].Enabled = true
+function Kavo:ToggleUI(init)
+    if init then 
+        if game.CoreGui[LibName].Enabled then
+            game.CoreGui[LibName].Enabled = false
+        else
+            game.CoreGui[LibName].Enabled = true
+        end
     end
 end
 
@@ -791,6 +793,10 @@ function Kavo.CreateLib(kavName, themeList)
                 function ButtonFunction:UpdateButton(newTitle)
                     btnInfo.Text = newTitle
                 end
+
+                function ButtonFunction:DestroyGui()
+                    ScreenGui:Destroy()
+                end
                 return ButtonFunction
             end
 
@@ -1029,7 +1035,7 @@ function Kavo.CreateLib(kavName, themeList)
                     end
                 end)()
                 return textboxfunctions
-            end
+            end 
 
             function Elements:NewToggle(tname, nTip, callback)
                 local TogFunction = {}
