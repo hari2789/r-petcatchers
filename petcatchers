@@ -311,22 +311,25 @@ local function FormatRespawnTime(respawnTimeInSeconds)
     return string.format("%d minutes, %d seconds", minutes, seconds)
 end
 
--- Function to use a shrine
-local function UseShrine(shrineName)
-    local success, result = pcall(function()
-        RemoteEvent:FireServer("UseShrine", shrineName)
+-- Function to use a shrine asynchronously
+local function UseShrineAsync(shrineName)
+    return coroutine.create(function()
+        local success, result = pcall(function()
+            RemoteEvent:FireServer("UseShrine", shrineName)
+        end)
+        if not success then
+            warn("Failed to use shrine:", shrineName)
+        end
     end)
-    if not success then
-        warn("Failed to use shrine:", shrineName)
-    end
 end
 
--- Use all shrines without coroutine
-local function UseAllShrines()
+-- Function to use all shrines continuously
+local function UseAllShrinesContinuously()
     while not stopUseAllShrinesLoop do
         if Settings.Toggles.UseAllShrines and Settings.Toggles.ScriptEnabled then
             for _, shrineName in ipairs(shrines) do
-                UseShrine(shrineName)
+                local useShrineCoroutine = UseShrineAsync(shrineName)
+                coroutine.resume(useShrineCoroutine) -- Start the coroutine
             end
         end
         wait(1) -- Wait for 1 second before checking again
@@ -412,6 +415,14 @@ local function UpdateDurationLabel(selectedItem, itemAmount)
         formattedDuration = formattedDuration .. totalMinutes .. " minutes"
     end
     return formattedDuration
+end
+
+-- Creates the function to teleport to the selected zone
+local function TeleportTo(x, y, z)
+    local destinationPosition = Vector3.new(x, y, z)
+    if Character then
+        Character:SetPrimaryPartCFrame(CFrame.new(destinationPosition))
+    end
 end
 
 -- Function to create teleport buttons
@@ -503,12 +514,11 @@ function PetCatchersHub:gui()
         local UseAllShrinesSection = AutoUse:NewSection("Shrines")
 
         -- Toggle for using all shrines
-        local UIUseAllShrinesToggle = UseAllShrinesSection:NewToggle("Use All Shrines",
-            "Toggles the state of the Use All Shrines", function(state)
+        local UIUseAllShrinesToggle = UseAllShrinesSection:NewToggle("Use All Shrines", "Toggles using all shrines",
+            function(state)
                 Settings.Toggles.UseAllShrines = state
-                stopUseAllShrinesLoop = not state
                 if state then
-                    coroutine.wrap(UseAllShrines)()
+                    coroutine.wrap(UseAllShrinesContinuously)() -- Start the coroutine
                 end
             end)
 
@@ -551,7 +561,7 @@ function PetCatchersHub:gui()
                 end
             end
         end)
-        
+
         -- Creates the Sections for the Bosses Tab
         local Kraken = Bosses:NewSection("Kraken")
         local Slime = Bosses:NewSection("King Slime")
@@ -713,6 +723,8 @@ function PetCatchersHub:gui()
 
             DeveloperTools:NewButton("Rejoin Game", "Rejoins the game", function()
                 RejoinServer()
+                DestroyButton:DestroyGui()
+                PetCatchersHub:stop()
             end)
 
             DestroyButton = DeveloperTools:NewButton("Destroy Script", "Destroys the script and gui", function()
@@ -737,6 +749,8 @@ function PetCatchersHub:gui()
 
             Others:NewButton("Rejoin Game", "Rejoins the game", function()
                 RejoinServer()
+                DestroyButton:DestroyGui()
+                PetCatchersHub:stop()
             end)
 
             Others:NewButton("Destroy Script", "Destroys the script and gui", function()
