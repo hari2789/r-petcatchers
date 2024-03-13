@@ -1,3 +1,7 @@
+if not game:IsLoaded() then
+    game.Loaded:Wait()
+end
+
 local PetCatchersHub = {}
 local DestroyButton
 local DestroyScript = false
@@ -20,8 +24,8 @@ local Settings = {
         UseAllShrines = false -- Toggle for using all shrines
     },
     Timers = {
-        RespawnKrakenTime = 0, -- Kraken Auto Respawn interval
-        RespawnSlimeTime = 0 -- Slime Auto Respawn interval
+        RespawnKrakenInterval = 1, -- Kraken Auto Respawn interval
+        RespawnSlimeInterval = 1 -- Slime Auto Respawn interval
     },
     Level = {
         KrakenLevel = 25, -- Kraken Level
@@ -31,7 +35,7 @@ local Settings = {
         ToggleUi = Enum.KeyCode.M -- Keybind to toggle the UI
     },
     Information = {
-        ScriptVersion = "v2.6", -- Script Version
+        ScriptVersion = "v2.8", -- Script Version
         StableGameVersion = "v1.1.7", -- Game Version
         Developers = "Av & Hari" -- Developers
     },
@@ -71,8 +75,10 @@ local stopUseAllShrinesLoop = false
 -- Text boxes for the Kraken and Slime 
 local KrakenLevelTextBox
 local KrakenIntervalTextBox
+local CurrentKrakenInterval
 local SlimeLevelTextBox
 local SlimeIntervalTextBox
+local CurrentSlimeInterval
 local ItemAmountTextBox
 
 -- Define teleport locations
@@ -113,6 +119,11 @@ local SelectedItem = "Coin Elixir" -- Default selected item
 local ItemAmount = 1 -- Default item amount
 local newFormattedDuration
 
+-- Interval
+local currentIntervalTime = Settings.Timers.RespawnKrakenInterval
+local KrakenRespawnInterval = Settings.Timers.RespawnKrakenInterval
+local SlimeRespawnInterval = Settings.Timers.RespawnSlimeInterval
+
 -- Function to Respawn the bosses
 local function RespawnBoss(bossName)
     local success, errorMessage = pcall(function()
@@ -123,31 +134,52 @@ local function RespawnBoss(bossName)
     end
 end
 
--- Function to respawn the Kraken
+-- Function to respawn the Kraken without intervals
 local function RespawnKraken()
     while not stopRespawnKrakenLoop do
         if Settings.Toggles.RespawnKraken and Settings.Toggles.ScriptEnabled then
+            RespawnBoss("the-kraken") -- Respawn the Kraken
+        else
+            print("Respawn Kraken process toggled off.")
+            return
+        end
+        wait(1)
+    end
+    print("RespawnKraken coroutine stopped.")
+end
+
+-- Function to respawn the Kraken with intervals
+local function RespawnKrakenWithIntervals()
+    while not stopRespawnKrakenLoop do
+        if Settings.Toggles.RespawnKraken and Settings.Toggles.ScriptEnabled then
             if Settings.Toggles.RespawnKrakenInterval then
-                local intervalTime = Settings.Timers.RespawnKrakenTime
-                print("Interval started. Time remaining:", intervalTime)
+                local intervalTime = Settings.Timers.RespawnKrakenInterval - 1
+                local waitTime = intervalTime -- Initialize wait time
+                local intervalUpdated = false -- Flag to track if interval is updated
 
-                for timeLeft = intervalTime, 1, -1 do
-                    if timeLeft == intervalTime then
-                        RespawnBoss("the-kraken") -- Respawn the Kraken
+                while intervalTime > 0 do
+                    if intervalTime == waitTime then
+                        RespawnBoss("the-kraken") -- Respawn the Kraken at the start of each interval
                     end
-                    print("Time remaining in this interval:", timeLeft)
-                    wait(1)
-
                     -- Check if respawn process is toggled off
                     if stopRespawnKrakenLoop then
                         print("Respawn Kraken process toggled off.")
                         return
                     end
-                end
+                    -- Update interval time if it changes
+                    if Settings.Toggles.RespawnKrakenInterval and not intervalUpdated then
+                        local newIntervalTime = Settings.Timers.RespawnKrakenInterval
+                        if newIntervalTime ~= intervalTime then
+                            intervalTime = newIntervalTime
+                            waitTime = intervalTime -- Reset wait time when interval time changes
+                            intervalUpdated = true -- Set flag to indicate interval is updated
+                        end
+                    end
 
-                print("Interval completed. Waiting for next interval...")
-            else
-                RespawnBoss("the-kraken") -- Respawn the Kraken without intervals
+                    intervalTime = intervalTime - 1
+                    CurrentKrakenInterval:UpdateLabel("Time remaining in this interval: " .. intervalTime)
+                    wait(1)
+                end
             end
         else
             print("Respawn Kraken process toggled off.")
@@ -156,58 +188,98 @@ local function RespawnKraken()
 
         -- Countdown for the wait time until the next interval
         if Settings.Toggles.RespawnKrakenInterval and not stopRespawnKrakenLoop then
-            local waitTime = Settings.Timers.RespawnKrakenTime
-            print("Waiting for next interval:", waitTime)
-            for timeLeft = waitTime, 1, -1 do
-                print("Time remaining until next respawn interval:", timeLeft)
-                wait(1)
+            local timeLeft = Settings.Timers.RespawnKrakenInterval - 1
+            local untilNext = timeLeft -- Initialize wait time
+            local intervalUpdated = false -- Flag to track if interval is updated
 
+            while timeLeft > 0 do
                 -- Check if respawn process is toggled off
                 if stopRespawnKrakenLoop then
                     print("Respawn Kraken process toggled off.")
                     return
                 end
+
+                -- Update wait time if it changes
+                if Settings.Toggles.RespawnKrakenInterval and not intervalUpdated then
+                    local newTimeLeft = Settings.Timers.RespawnKrakenInterval
+                    if newTimeLeft ~= timeLeft then
+                        untilNext = newTimeLeft
+                        timeLeft = untilNext -- Reset wait time when interval time changes
+                        intervalUpdated = true -- Set flag to indicate interval is updated
+                    end
+                end
+
+                timeLeft = timeLeft - 1
+                CurrentKrakenInterval:UpdateLabel("Time remaining until next respawn interval: " .. timeLeft)
+                wait(1)
             end
         end
     end
 end
 
--- Function to respawn the Slime
+-- Modify the function to update the interval time
+local function ToggleRespawnKraken()
+    Settings.Toggles.RespawnKraken = not Settings.Toggles.RespawnKraken
+    print("Respawn Kraken toggled. State:", Settings.Toggles.RespawnKraken)
+    if Settings.Toggles.RespawnKraken then
+        print("Respawning Kraken...")
+        stopRespawnKrakenLoop = false -- Ensure loop is not stopped
+        if Settings.Toggles.RespawnKrakenInterval then
+            coroutine.wrap(RespawnKrakenWithIntervals)() -- Start coroutine with intervals
+        else
+            coroutine.wrap(RespawnKraken)() -- Start coroutine without intervals
+        end
+    else
+        print("Kraken respawn toggled off.")
+        stopRespawnKrakenLoop = true -- Stop the RespawnKraken coroutine
+    end
+end
+
+-- Function to respawn the Slime without intervals
 local function RespawnSlime()
     while not stopRespawnSlimeLoop do
         if Settings.Toggles.RespawnSlime and Settings.Toggles.ScriptEnabled then
+            RespawnBoss("the-slime") -- Respawn the Slime
+        else
+            print("Respawn Slime process toggled off.")
+            return
+        end
+        wait(1)
+    end
+    print("RespawnSlime coroutine stopped.")
+end
+
+-- Function to respawn the Slime with intervals
+local function RespawnSlimeWithIntervals()
+    while not stopRespawnSlimeLoop do
+        if Settings.Toggles.RespawnSlime and Settings.Toggles.ScriptEnabled then
             if Settings.Toggles.RespawnSlimeInterval then
-                local intervalTime = Settings.Timers.RespawnSlimeTime
-                print("Interval started. Time remaining:", intervalTime)
+                local intervalTime = Settings.Timers.RespawnSlimeInterval - 1
+                local waitTime = intervalTime -- Initialize wait time
+                local intervalUpdated = false -- Flag to track if interval is updated
 
-                for timeLeft = intervalTime, 1, -1 do
-                    if timeLeft == intervalTime then
-                        -- First iteration, respawn the Slime
-                        local success, errorMessage = pcall(function()
-                            RemoteEvent:FireServer("RespawnBoss", "king-slime")
-                        end)
-                        if not success then
-                            warn("Error while respawning Slime:", errorMessage)
-                        end
+                while intervalTime > 0 do
+                    if intervalTime == waitTime then
+                        RespawnBoss("the-slime") -- Respawn the Slime at the start of each interval
                     end
-                    print("Time remaining in this interval:", timeLeft)
-                    wait(1)
-
                     -- Check if respawn process is toggled off
                     if stopRespawnSlimeLoop then
                         print("Respawn Slime process toggled off.")
                         return
                     end
-                end
+                    -- Update interval time if it changes
+                    if Settings.Toggles.RespawnSlimeInterval and not intervalUpdated then
+                        local newIntervalTime = Settings.Timers.RespawnSlimeInterval
+                        if newIntervalTime ~= intervalTime then
+                            intervalTime = newIntervalTime
+                            waitTime = intervalTime -- Reset wait time when interval time changes
+                            intervalUpdated = true -- Set flag to indicate interval is updated
+                        end
+                    end
 
-                print("Interval completed. Waiting for next interval...")
-            else
-                -- Respawn the Slime without intervals
-                local success, errorMessage = pcall(function()
-                    RemoteEvent:FireServer("RespawnBoss", "king-slime")
-                end)
-                if not success then
-                    warn("Error while respawning Slime:", errorMessage)
+                    intervalTime = intervalTime - 1
+                    CurrentSlimeInterval:UpdateLabel("Time remaining in this interval: " .. intervalTime)
+                    wait(1)
                 end
             end
         else
@@ -217,45 +289,47 @@ local function RespawnSlime()
 
         -- Countdown for the wait time until the next interval
         if Settings.Toggles.RespawnSlimeInterval and not stopRespawnSlimeLoop then
-            local waitTime = Settings.Timers.RespawnSlimeTime
-            print("Waiting for next interval:", waitTime)
-            for timeLeft = waitTime, 1, -1 do
-                print("Time remaining until next respawn interval:", timeLeft)
-                wait(1)
+            local timeLeft = Settings.Timers.RespawnSlimeInterval - 1
+            local untilNext = timeLeft -- Initialize wait time
+            local intervalUpdated = false -- Flag to track if interval is updated
 
+            while timeLeft > 0 do
                 -- Check if respawn process is toggled off
                 if stopRespawnSlimeLoop then
                     print("Respawn Slime process toggled off.")
                     return
                 end
+
+                -- Update wait time if it changes
+                if Settings.Toggles.RespawnSlimeInterval and not intervalUpdated then
+                    local newTimeLeft = Settings.Timers.RespawnSlimeInterval
+                    if newTimeLeft ~= timeLeft then
+                        untilNext = newTimeLeft
+                        timeLeft = untilNext -- Reset wait time when interval time changes
+                        intervalUpdated = true -- Set flag to indicate interval is updated
+                    end
+                end
+
+                timeLeft = timeLeft - 1
+                CurrentSlimeInterval:UpdateLabel("Time remaining until next respawn interval: " .. timeLeft)
+                wait(1)
             end
         end
     end
 end
 
--- Toggle function to control the Respawn Kraken feature
-local function ToggleRespawnKraken()
-    Settings.Toggles.RespawnKraken = not Settings.Toggles.RespawnKraken
-    print("Respawn Kraken toggled. State:", Settings.Toggles.RespawnKraken)
-    if Settings.Toggles.RespawnKraken then
-        print("Respawning Kraken...")
-        stopRespawnKrakenLoop = false -- Ensure loop is not stopped
-        coroutine.wrap(RespawnKraken)()
-    else
-        print("Kraken respawn toggled off.")
-        stopRespawnKrakenLoop = true -- Stop the RespawnKraken coroutine
-    end
-end
-
--- Toggle function to control the Respawn Slime feature
+-- Modify the function to update the interval time
 local function ToggleRespawnSlime()
     Settings.Toggles.RespawnSlime = not Settings.Toggles.RespawnSlime
     print("Respawn Slime toggled. State:", Settings.Toggles.RespawnSlime)
-
     if Settings.Toggles.RespawnSlime then
         print("Respawning Slime...")
         stopRespawnSlimeLoop = false -- Ensure loop is not stopped
-        coroutine.wrap(RespawnSlime)()
+        if Settings.Toggles.RespawnSlimeInterval then
+            coroutine.wrap(RespawnSlimeWithIntervals)() -- Start coroutine with intervals
+        else
+            coroutine.wrap(RespawnSlime)() -- Start coroutine without intervals
+        end
     else
         print("Slime respawn toggled off.")
         stopRespawnSlimeLoop = true -- Stop the RespawnSlime coroutine
@@ -296,22 +370,32 @@ local function StartSlime()
     end
 end
 
--- Function to use a shrine
-local function UseShrine(shrineName)
-    local success, result = pcall(function()
-        RemoteEvent:FireServer("UseShrine", shrineName)
-    end)
-    if not success then
-        warn("Failed to use shrine:", shrineName)
-    end
+-- Function to convert respawn kraken time to minutes and seconds
+local function FormatRespawnTime(respawnTimeInSeconds)
+    local minutes = math.floor(respawnTimeInSeconds / 60)
+    local seconds = respawnTimeInSeconds % 60
+    return string.format("%d minutes, %d seconds", minutes, seconds)
 end
 
--- Use all shrines without coroutine
-local function UseAllShrines()
+-- Function to use a shrine asynchronously
+local function UseShrineAsync(shrineName)
+    return coroutine.create(function()
+        local success, result = pcall(function()
+            RemoteEvent:FireServer("UseShrine", shrineName)
+        end)
+        if not success then
+            warn("Failed to use shrine:", shrineName)
+        end
+    end)
+end
+
+-- Function to use all shrines continuously
+local function UseAllShrinesContinuously()
     while not stopUseAllShrinesLoop do
         if Settings.Toggles.UseAllShrines and Settings.Toggles.ScriptEnabled then
             for _, shrineName in ipairs(shrines) do
-                UseShrine(shrineName)
+                local useShrineCoroutine = UseShrineAsync(shrineName)
+                coroutine.resume(useShrineCoroutine) -- Start the coroutine
             end
         end
         wait(1) -- Wait for 1 second before checking again
@@ -345,16 +429,21 @@ for i, shopName in ipairs(shops) do
     end
 end
 
--- Function to use an item
-local function UseItem(item, amount)
-    for i = 1, amount do
-        local success, result = pcall(function()
-            RemoteEvent:FireServer("UsePowerup", item)
-        end)
-        if not success then
-            warn("Failed to buy item from " .. shop .. ":", result)
+-- Function to use an item asynchronously
+local function UseItemAsync(item, amount)
+    return coroutine.create(function()
+        for i = 1, amount do
+            local success, result = pcall(function()
+                RemoteEvent:FireServer("UsePowerup", item)
+            end)
+
+            if not success then
+                warn("Failed to use item:", result)
+            end
+
+            coroutine.yield() -- Yield to allow other operations to run
         end
-    end
+    end)
 end
 
 local function UpdateDurationLabel(selectedItem, itemAmount)
@@ -394,6 +483,14 @@ local function UpdateDurationLabel(selectedItem, itemAmount)
     return formattedDuration
 end
 
+-- Creates the function to teleport to the selected zone
+local function TeleportTo(x, y, z)
+    local destinationPosition = Vector3.new(x, y, z)
+    if Character then
+        Character:SetPrimaryPartCFrame(CFrame.new(destinationPosition))
+    end
+end
+
 -- Function to create teleport buttons
 local function createTeleportButtons(category, teleportData)
     if teleportData then
@@ -410,6 +507,7 @@ end
 -- Function to rejoin the server
 local function RejoinServer()
     TeleportService:Teleport(PlaceId, Player)
+    PetCatchersHub:stop()
 end
 
 -- Function to join a public server
@@ -483,12 +581,11 @@ function PetCatchersHub:gui()
         local UseAllShrinesSection = AutoUse:NewSection("Shrines")
 
         -- Toggle for using all shrines
-        local UIUseAllShrinesToggle = UseAllShrinesSection:NewToggle("Use All Shrines",
-            "Toggles the state of the Use All Shrines", function(state)
+        local UIUseAllShrinesToggle = UseAllShrinesSection:NewToggle("Use All Shrines", "Toggles using all shrines",
+            function(state)
                 Settings.Toggles.UseAllShrines = state
-                stopUseAllShrinesLoop = not state
                 if state then
-                    coroutine.wrap(UseAllShrines)()
+                    coroutine.wrap(UseAllShrinesContinuously)() -- Start the coroutine
                 end
             end)
 
@@ -511,7 +608,6 @@ function PetCatchersHub:gui()
 
         -- Creates the Dropdown for the Auto Items Section
         AutoItemsSection:NewDropdown("Select Item", "Select the Item to use", Items, function(item)
-            print("Selected Item: " .. item)
             SelectedItem = item
             newFormattedDuration = UpdateDurationLabel(SelectedItem, ItemAmount)
             SelectedItemLabel:UpdateLabel("Selected Item: " .. SelectedItem)
@@ -522,15 +618,30 @@ function PetCatchersHub:gui()
         AutoItemsSection:NewButton("Use Item", "Uses the selected item", function(item, amount)
             amount = tonumber(ItemAmount)
             item = tostring(SelectedItem)
-            UseItem(item, amount)
+            local itemCoroutine = UseItemAsync(item, amount)
+
+            -- Execute the coroutine until it completes
+            while coroutine.status(itemCoroutine) ~= "dead" do
+                local success, errorMsg = coroutine.resume(itemCoroutine)
+                if not success then
+                    error(errorMsg) -- Terminate if coroutine encounters an error
+                end
+            end
         end)
 
         -- Creates the Sections for the Bosses Tab
         local Kraken = Bosses:NewSection("Kraken")
         local Slime = Bosses:NewSection("King Slime")
 
+        -- Creates the Respawn Kraken Interval Label 
+        local KrakenRespawnTime = "Current Respawn Interval: " .. FormatRespawnTime(KrakenRespawnInterval)
+        local RespawnKrakenIntervalLabel = Kraken:NewLabel(KrakenRespawnTime)
+
+        -- Timer for the current interval time
+        CurrentKrakenInterval = Kraken:NewLabel("Interval Phase")
+
         -- Creates the Start Kraken Fight Toggle
-        local UIStartKrakenToggle = Kraken:NewToggle("Auto Fight", "Starts the Kraken fight", function(state)
+        local UIStartKrakenToggle = Kraken:NewToggle("Auto Kraken Fight", "Auto fights the Kraken", function(state)
             Settings.Toggles.StartKraken = state
             stopStartKrakenLoop = not state
             if state then
@@ -539,33 +650,43 @@ function PetCatchersHub:gui()
         end)
 
         -- Creates the Respawn Kraken Toggle
-        local UIRespawnKrakenToggle = Kraken:NewToggle("Auto Respawn Kraken", "Toggles the state of the Respawn Kraken",
+        local UIRespawnKrakenToggle = Kraken:NewToggle("Auto Kraken Respawn", "Auto respawns the Kraken",
             ToggleRespawnKraken)
 
         -- Creates the Respawn Kraken Interval Toggle
-        local UIRespawnKrakenInterval = Kraken:NewToggle("Respawn Interval", "Toggles the Respawn Interval",
-            function(state)
+        local UIRespawnKrakenInterval = Kraken:NewToggle("Auto Kraken Respawn With Interval",
+            "Toggles the respawn interval", function(state)
                 Settings.Toggles.RespawnKrakenInterval = state
-                print("Respawn Kraken Interval: " .. tostring(Settings.Toggles.RespawnKrakenInterval))
+                ToggleRespawnKraken() -- Toggle the respawn feature based on the new interval state
+            end)
+
+        -- Update the interval time from the textbox
+        KrakenIntervalTextBox = Kraken:NewTextBox("Respawn Interval",
+            "Enter the auto respawn interval of the Kraken in seconds",
+            "Current Interval: " .. Settings.Timers.RespawnKrakenInterval, function(text)
+                Settings.Timers.RespawnKrakenInterval = tonumber(text)
+                currentIntervalTime = Settings.Timers.RespawnKrakenInterval -- Update the current interval time
+                KrakenIntervalTextBox:UpdatePlaceholder("Current Interval: " .. Settings.Timers.RespawnKrakenInterval)
+                RespawnKrakenIntervalLabel:UpdateLabel("Current Respawn Interval: " ..
+                                                           FormatRespawnTime(Settings.Timers.RespawnKrakenInterval))
             end)
 
         -- Creates the Kraken Level TextBox
-        KrakenLevelTextBox = Kraken:NewTextBox("Kraken Level", "Enter the level of the Kraken",
+        KrakenLevelTextBox = Kraken:NewTextBox("Kraken Level", "Enter the level of the Kraken you want to fight",
             "Current Level: " .. Settings.Level.KrakenLevel, function(text)
                 Settings.Level.KrakenLevel = tonumber(text)
                 KrakenLevelTextBox:UpdatePlaceholder("Current Level: " .. Settings.Level.KrakenLevel)
             end)
 
-        -- Creates the Respawn Kraken Interval TextBox
-        KrakenIntervalTextBox = Kraken:NewTextBox("Respawn Interval", "Enter the auto respawn interval of the Kraken",
-            "Current Interval: " .. Settings.Timers.RespawnKrakenTime, function(text)
-                Settings.Timers.RespawnKrakenTime = tonumber(text)
-                print("Set Respawn Interval to: " .. Settings.Timers.RespawnKrakenTime)
-                KrakenIntervalTextBox:UpdatePlaceholder("Current Interval: " .. Settings.Timers.RespawnKrakenTime)
-            end)
+        -- Creates the Respawn Slime Interval Label
+        local SlimeRespawnTime = "Respawn Interval: " .. FormatRespawnTime(SlimeRespawnInterval)
+        local RespawnSlimeIntervalLabel = Slime:NewLabel(SlimeRespawnTime)
+
+        -- Timer for the current interval time
+        CurrentSlimeInterval = Slime:NewLabel("Interval Phase")
 
         -- Creates the StartSlimeFight Toggle
-        local UIStartSlimeToggle = Slime:NewToggle("Start Slime Fight", "Starts the Slime fight", function(state)
+        local UIStartSlimeToggle = Slime:NewToggle("Auto Slime Fight", "Auto fights the Slime", function(state)
             Settings.Toggles.StartSlime = state
             stopStartSlimeLoop = not state
             if state then
@@ -574,35 +695,37 @@ function PetCatchersHub:gui()
         end)
 
         -- Creates the Respawn Slime Toggle
-        local UIRespawnSlimeToggle = Slime:NewToggle("Respawn Slime", "Toggles the state of the Respawn Slime",
-            function(state)
-                Settings.Toggles.RespawnSlime = state
-                stopRespawnSlimeLoop = not state
-                if state then
-                    coroutine.wrap(RespawnSlime)()
-                end
-            end)
+        local UIRespawnSlimeToggle = Slime:NewToggle("Auto Slime Respawn", "Auto respawns the Slime", function(state)
+            Settings.Toggles.RespawnSlime = state
+            stopRespawnSlimeLoop = not state
+            if state then
+                coroutine.wrap(RespawnSlime)()
+            end
+        end)
 
         -- Creates the Respawn Slime Interval Toggle
-        local UIRespawnSlimeInterval = Slime:NewToggle("Respawn Interval", "Toggles the Respawn Interval",
+        local UIRespawnSlimeInterval = Slime:NewToggle("Respawn Interval", "Toggles the respawn interval",
             function(state)
                 Settings.Toggles.RespawnSlimeInterval = state
-                print("Respawn Slime Interval: " .. tostring(Settings.Toggles.RespawnSlimeInterval))
-            end)
-
-        -- Creates the Slime Level TextBox
-        SlimeLevelTextBox = Slime:NewTextBox("Slime Level", "Enter the level of the King Slime",
-            "Current Level: " .. Settings.Level.SlimeLevel, function(text)
-                Settings.Level.SlimeLevel = tonumber(text)
-                SlimeLevelTextBox:UpdatePlaceholder("Current Level: " .. Settings.Level.SlimeLevel)
+                ToggleRespawnSlime() -- Toggle the respawn feature based on the new interval state
             end)
 
         -- Creates the Respawn Slime Interval TextBox
-        SlimeIntervalTextBox = Slime:NewTextBox("Respawn Interval", "Enter the auto respawn interval of the King Slime",
-            "Current Interval: " .. Settings.Timers.RespawnSlimeTime, function(text)
-                Settings.Timers.RespawnSlimeTime = tonumber(text)
-                print("Set Respawn Interval to: " .. Settings.Timers.RespawnSlimeTime)
-                SlimeIntervalTextBox:UpdatePlaceholder("Current Interval: " .. Settings.Timers.RespawnSlimeTime)
+        SlimeIntervalTextBox = Slime:NewTextBox("Respawn Interval",
+            "Enter the auto respawn interval of the King Slime in seconds",
+            "Current Interval: " .. Settings.Timers.RespawnSlimeInterval, function(text)
+                Settings.Timers.RespawnSlimeInterval = tonumber(text)
+                SlimeRespawnInterval = Settings.Timers.RespawnSlimeInterval -- Update the current interval time
+                SlimeIntervalTextBox:UpdatePlaceholder("Current Interval: " .. Settings.Timers.RespawnSlimeInterval)
+                RespawnSlimeIntervalLabel:UpdateLabel("Current Respawn Interval: " .. 
+                                                          FormatRespawnTime(Settings.Timers.RespawnSlimeInterval))
+            end)
+
+        -- Creates the Slime Level TextBox
+        SlimeLevelTextBox = Slime:NewTextBox("Slime Level", "Enter the level of the King Slime you want to fight",
+            "Current Level: " .. Settings.Level.SlimeLevel, function(text)
+                Settings.Level.SlimeLevel = tonumber(text)
+                SlimeLevelTextBox:UpdatePlaceholder("Current Level: " .. Settings.Level.SlimeLevel)
             end)
 
         -- Creates the Sections for the Teleports Tab
@@ -680,7 +803,6 @@ function PetCatchersHub:gui()
             end)
 
             DestroyButton = DeveloperTools:NewButton("Destroy Script", "Destroys the script and gui", function()
-                DestroyButton:DestroyGui()
                 PetCatchersHub:stop()
             end)
 
@@ -704,7 +826,6 @@ function PetCatchersHub:gui()
             end)
 
             Others:NewButton("Destroy Script", "Destroys the script and gui", function()
-                DestroyButton:DestroyGui()
                 PetCatchersHub:stop()
             end)
             print("Done creating gui")
@@ -719,16 +840,54 @@ function PetCatchersHub:stop()
     print("Stopping PetCatchersHub...")
     print("Disabling variables...")
     Settings = nil
+    shrines = nil
+    shops = nil
+    shopLoopNames = nil
+    Items = nil
+    ItemsDuration = nil
+    SelectedItem = nil
+    ItemAmount = nil
+    newFormattedDuration = nil
+    currentIntervalTime = nil
+    KrakenRespawnInterval = nil
+    SlimeRespawnInterval = nil
+    KrakenLevelTextBox = nil
+    KrakenIntervalTextBox = nil
+    CurrentKrakenInterval = nil
+    SlimeLevelTextBox = nil
+    SlimeIntervalTextBox = nil
+    CurrentSlimeInterval = nil
+    ItemAmountTextBox = nil
+    DestroyButton = nil
     print("Stopping loops...")
-    stopRespawnKrakenLoop = false
-    stopRespawnSlimeLoop = false
-    stopStartKrakenLoop = false
-    stopStartSlimeLoop = false
-    stopBuyBlackMarketLoop = false
-    stopBuyMagicShopLoop = false
-    stopBuyGemTraderLoop = false
-    stopBuyAuburnShopLoop = false
-    stopUseAllShrinesLoop = false
+    stopRespawnKrakenLoop = nil
+    stopRespawnSlimeLoop = nil
+    stopStartKrakenLoop = nil
+    stopStartSlimeLoop = nil
+    stopBuyBlackMarketLoop = nil
+    stopBuyMagicShopLoop = nil
+    stopBuyGemTraderLoop = nil
+    stopBuyAuburnShopLoop = nil
+    stopUseAllShrinesLoop = nil
+    print("Stopping coroutines...")
+    RespawnKraken = nil
+    RespawnKrakenWithIntervals = nil
+    RespawnSlime = nil
+    ToggleRespawnKraken = nil
+    RespawnBoss = nil
+    ToggleRespawnSlime = nil
+    StartKraken = nil
+    StartSlime = nil
+    UseShrineAsync = nil
+    UseAllShrinesContinuously = nil
+    BuyItem = nil
+    UseItemAsync = nil
+    UpdateDurationLabel = nil
+    TeleportTo = nil
+    RejoinServer = nil
+    JoinPublicServer = nil
+    print("Destroying gui...")
+    DestroyButton:DestroyGui()
     print("Deinitializing...")
     HasInitialized = false
     PetCatchersHub = nil
