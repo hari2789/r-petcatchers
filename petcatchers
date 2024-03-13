@@ -360,16 +360,21 @@ for i, shopName in ipairs(shops) do
     end
 end
 
--- Function to use an item
-local function UseItem(item, amount)
-    for i = 1, amount do
-        local success, result = pcall(function()
-            RemoteEvent:FireServer("UsePowerup", item)
-        end)
-        if not success then
-            warn("Failed to buy item from " .. shop .. ":", result)
+-- Function to use an item asynchronously
+local function UseItemAsync(item, amount)
+    return coroutine.create(function()
+        for i = 1, amount do
+            local success, result = pcall(function()
+                RemoteEvent:FireServer("UsePowerup", item)
+            end)
+
+            if not success then
+                warn("Failed to use item:", result)
+            end
+
+            coroutine.yield() -- Yield to allow other operations to run
         end
-    end
+    end)
 end
 
 local function UpdateDurationLabel(selectedItem, itemAmount)
@@ -536,9 +541,17 @@ function PetCatchersHub:gui()
         AutoItemsSection:NewButton("Use Item", "Uses the selected item", function(item, amount)
             amount = tonumber(ItemAmount)
             item = tostring(SelectedItem)
-            UseItem(item, amount)
-        end)
+            local itemCoroutine = UseItemAsync(item, amount)
 
+            -- Execute the coroutine until it completes
+            while coroutine.status(itemCoroutine) ~= "dead" do
+                local success, errorMsg = coroutine.resume(itemCoroutine)
+                if not success then
+                    error(errorMsg) -- Terminate if coroutine encounters an error
+                end
+            end
+        end)
+        
         -- Creates the Sections for the Bosses Tab
         local Kraken = Bosses:NewSection("Kraken")
         local Slime = Bosses:NewSection("King Slime")
