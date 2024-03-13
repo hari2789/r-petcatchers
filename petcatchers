@@ -31,7 +31,7 @@ local Settings = {
         ToggleUi = Enum.KeyCode.M -- Keybind to toggle the UI
     },
     Information = {
-        ScriptVersion = "v2.6", -- Script Version
+        ScriptVersion = "v2.7", -- Script Version
         StableGameVersion = "v1.1.7", -- Game Version
         Developers = "Av & Hari" -- Developers
     },
@@ -68,6 +68,13 @@ local stopBuyGemTraderLoop = false
 local stopBuyAuburnShopLoop = false
 local stopUseAllShrinesLoop = false
 
+-- Text boxes for the Kraken and Slime 
+local KrakenLevelTextBox
+local KrakenIntervalTextBox
+local SlimeLevelTextBox
+local SlimeIntervalTextBox
+local ItemAmountTextBox
+
 -- Define teleport locations
 local teleportLocations = {
     BossTeleports = {{"Kraken", "Teleports you to the Kraken", {1218.1, 41.4, 408.5}},
@@ -93,16 +100,18 @@ local teleportLocations = {
                             {"Crafter", "Teleports you to the Crafter", {824.7, 24.6, 1108.5}}}
 }
 
--- Text boxes for the Kraken and Slime 
-local KrakenLevelTextBox
-local KrakenIntervalTextBox
-local SlimeLevelTextBox
-local SlimeIntervalTextBox
-
 -- In-game names of the shrines and shops
 local shrines = {"cherry", "rune", "better-cube", "radioactive", "ticket", "gem", "egg", "berry", "cube"} -- In-game names of the shrines
 local shops = {"the-blackmarket", "magic-shop", "gem-trader", "auburn-shop"} -- In-game names of the shops
 local shopLoopNames = {"AuburnShop", "GemTrader", "MagicShop", "BlackMarket"} -- Name of the shops for the script
+
+-- Items 
+local Items = {"Coin Elixir", "XP Elixir", "Lucky Elixir", "Sea Elixir", "Timeful Tome", "Prismatic Sundae"} -- In-game names of the items
+local ItemsDuration = {{"Coin Elixir", 5}, {"XP Elixir", 5}, {"Lucky Elixir", 5}, {"Sea Elixir", 5},
+                       {"Timeful Tome", 20}, {"Prismatic Sundae", 20}}
+local SelectedItem = "Coin Elixir" -- Default selected item
+local ItemAmount = 1 -- Default item amount
+local newFormattedDuration
 
 -- Function to Respawn the bosses
 local function RespawnBoss(bossName)
@@ -336,12 +345,53 @@ for i, shopName in ipairs(shops) do
     end
 end
 
--- Creates the function to teleport to the selected zone
-local function TeleportTo(x, y, z)
-    local destinationPosition = Vector3.new(x, y, z)
-    if Character then
-        Character:SetPrimaryPartCFrame(CFrame.new(destinationPosition))
+-- Function to use an item
+local function UseItem(item, amount)
+    for i = 1, amount do
+        local success, result = pcall(function()
+            RemoteEvent:FireServer("UsePowerup", item)
+        end)
+        if not success then
+            warn("Failed to buy item from " .. shop .. ":", result)
+        end
     end
+end
+
+local function UpdateDurationLabel(selectedItem, itemAmount)
+    local function TotalItemDuration(item, amount)
+        -- Get the duration of the item from ItemsDuration
+        for i, v in ipairs(ItemsDuration) do
+            if v[1] == item then
+                return v[2] * amount
+            end
+        end
+        -- If the item is not found, return 0 or some default value
+        return 0
+    end
+
+    -- Update the label
+    local totalMinutes = TotalItemDuration(selectedItem, itemAmount)
+    local formattedDuration = "Total Item Duration: "
+    if totalMinutes >= 1440 then -- 1440 minutes = 1 day
+        local days = math.floor(totalMinutes / 1440)
+        formattedDuration = formattedDuration .. days .. " days"
+        totalMinutes = totalMinutes % 1440
+        if totalMinutes > 0 then
+            formattedDuration = formattedDuration .. ", "
+        end
+    end
+    if totalMinutes >= 60 then
+        local hours = math.floor(totalMinutes / 60)
+        formattedDuration = formattedDuration .. hours .. " hours"
+        totalMinutes = totalMinutes % 60
+        if totalMinutes > 0 then
+            formattedDuration = formattedDuration .. ", "
+        end
+    end
+    if totalMinutes > 0 then
+        formattedDuration = formattedDuration .. totalMinutes .. " minutes"
+    end
+    return formattedDuration
 end
 
 -- Function to create teleport buttons
@@ -379,10 +429,8 @@ end
 function PetCatchersHub:init()
     if not HasInitialized then
         print("Initializing...")
-        wait(0.5)
         HasInitialized = true
         print("Done initializing")
-        wait(0.5)
     else
         warn("PetCatchersHub has already been initialized")
     end
@@ -401,6 +449,7 @@ function PetCatchersHub:gui()
         -- Creates Tabs
         local Info = Window:NewTab("Info")
         local AutoUse = Window:NewTab("Auto")
+        local AutoItems = Window:NewTab("Items")
         local Bosses = Window:NewTab("Bosses")
         local Teleports = Window:NewTab("Teleports")
         local Quests = Window:NewTab("Quests")
@@ -442,6 +491,39 @@ function PetCatchersHub:gui()
                     coroutine.wrap(UseAllShrines)()
                 end
             end)
+
+        -- Creates the Auto Items Section
+        local AutoItemsSection = AutoItems:NewSection("Auto Use Item")
+
+        -- Creates the Labels for the Auto Items Section
+        newFormattedDuration = UpdateDurationLabel(SelectedItem, ItemAmount)
+        local SelectedItemLabel = AutoItemsSection:NewLabel("Selected Item: " .. SelectedItem)
+        local ItemDurationLabel = AutoItemsSection:NewLabel(newFormattedDuration)
+
+        -- Creates the TextBox for the Auto Items Section
+        ItemAmountTextBox = AutoItemsSection:NewTextBox("Amount", "Enter the amount of the item to use",
+            "Current amount: " .. tostring(ItemAmount), function(text)
+                ItemAmount = tonumber(text)
+                ItemAmountTextBox:UpdatePlaceholder("Current amount: " .. ItemAmount)
+                newFormattedDuration = UpdateDurationLabel(SelectedItem, ItemAmount)
+                ItemDurationLabel:UpdateLabel(newFormattedDuration)
+            end)
+
+        -- Creates the Dropdown for the Auto Items Section
+        AutoItemsSection:NewDropdown("Select Item", "Select the Item to use", Items, function(item)
+            print("Selected Item: " .. item)
+            SelectedItem = item
+            newFormattedDuration = UpdateDurationLabel(SelectedItem, ItemAmount)
+            SelectedItemLabel:UpdateLabel("Selected Item: " .. SelectedItem)
+            ItemDurationLabel:UpdateLabel(newFormattedDuration)
+        end)
+
+        -- Creates the Button for the Auto Items Section
+        AutoItemsSection:NewButton("Use Item", "Uses the selected item", function(item, amount)
+            amount = tonumber(ItemAmount)
+            item = tostring(SelectedItem)
+            UseItem(item, amount)
+        end)
 
         -- Creates the Sections for the Bosses Tab
         local Kraken = Bosses:NewSection("Kraken")
@@ -625,11 +707,8 @@ function PetCatchersHub:gui()
                 DestroyButton:DestroyGui()
                 PetCatchersHub:stop()
             end)
-            wait(0.5)
             print("Done creating gui")
-            wait(0.5)
             print("PetCatchersHub is ready\n")
-            wait(0.5)
         end
     else
         warn("PetCatchersHub has not been initialized")
@@ -638,12 +717,9 @@ end
 
 function PetCatchersHub:stop()
     print("Stopping PetCatchersHub...")
-    wait(0.5)
     print("Disabling variables...")
-    wait(0.5)
     Settings = nil
     print("Stopping loops...")
-    wait(0.5)
     stopRespawnKrakenLoop = false
     stopRespawnSlimeLoop = false
     stopStartKrakenLoop = false
@@ -654,11 +730,9 @@ function PetCatchersHub:stop()
     stopBuyAuburnShopLoop = false
     stopUseAllShrinesLoop = false
     print("Deinitializing...")
-    wait(0.5)
     HasInitialized = false
     PetCatchersHub = nil
     print("Stopped PetCatchersHub")
-    wait(0.5)
 end
 
 PetCatchersHub:init()
