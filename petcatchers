@@ -374,7 +374,7 @@ local function UseItemAsync(item, amount)
             if not success then
                 warn("Failed to use item:", result)
             end
-
+            wait()
             coroutine.yield() -- Yield to allow other operations to run
         end
     end)
