@@ -24,8 +24,8 @@ local Settings = {
         UseAllShrines = false -- Toggle for using all shrines
     },
     Timers = {
-        RespawnKrakenInterval = 0, -- Kraken Auto Respawn interval
-        RespawnSlimeInterval = 0 -- Slime Auto Respawn interval
+        RespawnKrakenInterval = 1, -- Kraken Auto Respawn interval
+        RespawnSlimeInterval = 1 -- Slime Auto Respawn interval
     },
     Level = {
         KrakenLevel = 25, -- Kraken Level
