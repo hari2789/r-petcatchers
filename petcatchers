@@ -105,7 +105,7 @@ local teleportLocations = {
 }
 
 -- In-game names of the shrines and shops
-local shrines = {"cherry", "rune", "better-cube", "radioactive", "ticket", "gem", "egg", "berry", "cube"} -- In-game names of the shrines
+local shrines = {"cherry", "rune", "better-cube", "radioactive", "ticket", "gem", "egg", "berry", "cube", "gold"} -- In-game names of the shrines
 local shops = {"the-blackmarket", "magic-shop", "gem-trader", "auburn-shop"} -- In-game names of the shops
 local shopLoopNames = {"AuburnShop", "GemTrader", "MagicShop", "BlackMarket"} -- Name of the shops for the script
 
