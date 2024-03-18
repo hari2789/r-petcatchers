@@ -471,7 +471,7 @@ function PetCatchersHub:gui()
     if HasInitialized then
         print("Creating gui...")
         -- Gets the UI Library
-        local KavoLibrary = "https://raw.githubusercontent.com/vyworn/r-petcatchers/main/kavo-ui-lib-modified.lua"
+        local KavoLibrary = "https://raw.githubusercontent.com/vyworn/r-petcatchers/main/kavo-ui-lib-modified.lua?token=GHSAT0AAAAAACPJIJT433PW37PHNXAWOE64ZPYM75Q"
         local Library = loadstring(game:HttpGet(KavoLibrary))()
 
         -- Creates the window
